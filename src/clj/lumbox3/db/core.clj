@@ -117,6 +117,12 @@
 (defmethod hugsql.core/hugsql-result-fn :many [sym]
   'lumbox3.db.core/result-many-snake->kebab)
 
+(defmethod hugsql.core/hugsql-result-fn :raw [sym]
+  'lumbox3.db.core/result-many-snake->kebab)
+
+(defmethod hugsql.core/hugsql-result-fn :default [sym]
+  'lumbox3.db.core/result-many-snake->kebab)
+
 (comment
   (users)
   (user-by-email {:user-email "bar@bar.com"})
