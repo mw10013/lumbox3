@@ -5,26 +5,32 @@
             [clojure.edn :as edn]
             [compojure.api.sweet :refer :all]
             [mount.core :as mount]
-            [ring.util.http-response :as response]))
+            [ring.util.http-response :as response]
+            [lumbox3.db.core :as db]
+            [camel-snake-kebab.extras :as csk-extras]
+            [camel-snake-kebab.core :as csk]))
 
-(defn get-hero [context args value]
-  (let [data  [{:id 1000
-               :name "Luke"
-               :home_planet "Tatooine"
-               :appears_in ["NEWHOPE" "EMPIRE" "JEDI"]}
-              {:id 2000
-               :name "Lando Calrissian"
-               :home_planet "Socorro"
-               :appears_in ["EMPIRE" "JEDI"]}]]
-           (first data)))
+(def ^:private snake-case-keys (partial csk-extras/transform-keys csk/->snake_case))
+
+(defn ^:private marshal-user
+  "Transform user map m for graphql."
+  [{:keys [user-id user-email] :as m}]
+  (-> m
+      (assoc :id (str user-id) :email user-email)
+      (dissoc :user-id :user-email)
+      snake-case-keys))
+
+(defn users
+  "TODO: check perms."
+  [_ _ _]
+  (map marshal-user (db/users)))
 
 (mount/defstate schema
           :start (-> "resources/graphql/schema.edn"
                      slurp
                      edn/read-string
                      (lacinia-util/attach-resolvers
-                       {:get-hero get-hero
-                        :get-droid (constantly {})})
+                       {:query/users users})
                      schema/compile))
 
 (defn graphql
@@ -52,11 +58,13 @@
 
 (comment
   (mount.core/start #'lumbox3.routes.services/graphql-schema)
-  (l/execute schema "{ hero(id: \"id\") { id name appears_in } }" nil nil)
+  (db/users)
+  (users nil nil nil)
+  (l/execute schema "{ users { id email encrypted_password } }" nil nil)
 
   (require 'ring.mock.request)
-  (ring.mock.request/request :post "/api" {:query "{ hero(id: \"id\") { id name appears_in } }"})
-  (service-routes (ring.mock.request/request :post "/api" {:query "{ hero(id: \"id\") { id name appears_in } }"}))
-  (-> (ring.mock.request/request :post "/api" {:query "{ hero(id: \"id\") { id name appears_in } }"})
+  (ring.mock.request/request :post "/api" {:query "{ users { id email encrypted_password } }"})
+  (service-routes (ring.mock.request/request :post "/api" {:query "{ users { id email encrypted_password } }"}))
+  (-> (ring.mock.request/request :post "/api" {:query "{ users { id email encrypted_password } }"})
       service-routes :body slurp)
   )

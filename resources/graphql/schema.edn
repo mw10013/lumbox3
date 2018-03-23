@@ -1,25 +1,12 @@
-{:enums
- {:episode
-  {:description "The episodes of the original Star Wars trilogy."
-   :values [:NEWHOPE :EMPIRE :JEDI]}}
-
- :objects
- {:droid
-  {:fields {:primary_functions {:type (list String)}
-            :id {:type Int}
-            :name {:type String}
-            :appears_in {:type (list :episode)}}}
-
-  :human
-  {:fields {:id {:type Int}
-            :name {:type String}
-            :home_planet {:type String}
-            :appears_in {:type (list :episode)}}}}
+{:objects
+ {:User {:description "User"
+         :fields      {:id                 {:type (non-null ID)}
+                       :email              {:type        String
+                                            :description "Email of user."}
+                       :encrypted_password {:type        (non-null String)
+                                            :description "Encrypted password of user."}}}}
 
  :queries
- {:hero {:type (non-null :human)
-         :args {:id {:type String :default-value "2001"}}
-         :resolve :get-hero}
-  :droid {:type :droid
-          :args {:name {:type String}}
-          :resolve :get-droid}}}
+ {:users {:type        (list :User)
+          :description "Get all users."
+          :resolve     :query/users}}}
