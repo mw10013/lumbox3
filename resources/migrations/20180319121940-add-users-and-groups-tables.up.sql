@@ -13,6 +13,7 @@ create table users(
  );
 
 -- Multiple statements in migratus: https://github.com/yogthos/migratus
+-- Not sure if this is really needed for postgres.
 --;;
 
 create table groups(
