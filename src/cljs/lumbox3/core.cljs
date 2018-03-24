@@ -38,11 +38,7 @@
 (defn home-page []
   [:div.container
    [:div.row>div.col-sm-12
-    [:h2.alert.alert-info "Tip: try pressing CTRL+H to open re-frame tracing menu"]]
-   (when-let [docs @(rf/subscribe [:docs])]
-     [:div.row>div.col-sm-12
-      [:div {:dangerouslySetInnerHTML
-             {:__html (md->html docs)}}]])])
+    [:h2.alert.alert-info "Home page"]]])
 
 (def pages
   {:home #'home-page
@@ -53,8 +49,6 @@
    [navbar]
    [(pages @(rf/subscribe [:page]))]])
 
-;; -------------------------
-;; Routes
 (secretary/set-config! :prefix "#")
 
 (secretary/defroute "/" []
@@ -63,7 +57,6 @@
 (secretary/defroute "/about" []
   (rf/dispatch [:set-active-page :about]))
 
-;; -------------------------
 ;; History
 ;; must be called after routes have been defined
 (defn hook-browser-navigation! []
@@ -74,11 +67,6 @@
         (secretary/dispatch! (.-token event))))
     (.setEnabled true)))
 
-;; -------------------------
-;; Initialize app
-(defn fetch-docs! []
-  (GET "/docs" {:handler #(rf/dispatch [:set-docs %])}))
-
 (defn mount-components []
   (rf/clear-subscription-cache!)
   (r/render [#'page] (.getElementById js/document "app")))
@@ -86,6 +74,5 @@
 (defn init! []
   (rf/dispatch-sync [:initialize-db])
   (load-interceptors!)
-  (fetch-docs!)
   (hook-browser-navigation!)
   (mount-components))

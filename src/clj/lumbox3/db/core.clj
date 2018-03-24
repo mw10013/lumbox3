@@ -57,8 +57,6 @@
 
 #_(conman/bind-connection *db* "sql/queries.sql")
 (->> (conman/bind-connection *db* "sql/queries.sql") :fns keys (map name) (wrap-sql-fns *ns*))
-#_(hugsql.core/def-db-fns "sql/queries.sql")
-#_(hugsql.core/def-sqlvec-fns "sql/queries.sql")
 
 (extend-protocol jdbc/IResultSetReadColumn
   Array
@@ -128,4 +126,7 @@
   (user-by-email {:user-email "bar@bar.com"})
   (create-user! {:user-email "bar@bar.com" :encrypted-password "letmein"})
   (delete-user! {:user-id 3})
+
+  (hugsql.core/def-db-fns "sql/queries.sql")
+  (hugsql.core/def-sqlvec-fns "sql/queries.sql")
   )

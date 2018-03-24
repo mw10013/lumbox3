@@ -10,10 +10,27 @@ mutation RegisterUser($register_user_input: RegisterUserInput!) {
   }
 }
 
+mutation Login($login_input: LoginInput!) {
+ login(input: $login_input) {
+  	user { id email }
+ }
+}
+
+mutation Logout {
+  logout {
+    user { id email }
+  }
+}
+
 # Variables
 
 {
   "register_user_input": {
+    "email": "bee@sting.com",
+    "password": "letmein"
+  },
+  "delete_user_by_email_input": "bee@sting.com",
+  "login_input": {
     "email": "bee@sting.com",
     "password": "letmein"
   }
