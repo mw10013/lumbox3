@@ -8,7 +8,8 @@ create table users(
   -- https://security.stackexchange.com/questions/39849/does-bcrypt-have-a-maximum-password-length
   -- https://stackoverflow.com/questions/5881169/what-column-type-length-should-i-use-for-storing-a-bcrypt-hashed-password-in-a-d
   -- restrict unencrypted password length to 50.
-   encrypted_password varchar(60) not null,
+  -- buddy needs 98 for encrypting passwords.
+   encrypted_password varchar(98) not null,
    created_at timestamptz not null default current_timestamp
  );
 

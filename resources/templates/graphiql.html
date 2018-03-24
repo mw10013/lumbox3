@@ -86,12 +86,13 @@
       function graphQLFetcher(graphQLParams) {
         console.log(graphQLParams);
         return fetch(window.location.origin + '/api' + computeParams(), {
+          credentials: 'include', <!--https://developers.google.com/web/updates/2015/03/introduction-to-fetch-->
           method: 'post',
           headers: {
-            'Content-Type': 'application/graphql',
+            'Content-Type': 'application/json',
             'apikey': 'graphiql'
           },
-		  body: graphQLParams.query
+		  body: JSON.stringify(graphQLParams)
         }).then(function (response) {
           return response.text();
         }).then(function (responseBody) {

@@ -126,4 +126,6 @@
 (comment
   (users)
   (user-by-email {:user-email "bar@bar.com"})
+  (create-user! {:user-email "bar@bar.com" :encrypted-password "letmein"})
+  (delete-user! {:user-id 3})
   )

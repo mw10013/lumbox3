@@ -35,7 +35,9 @@
                  [ring/ring-defaults "0.3.1"]
                  [secretary "1.2.3"]
                  [selmer "1.11.7"]
-                 [camel-snake-kebab "0.4.0"]]
+                 [camel-snake-kebab "0.4.0"]
+                 [com.cognitect/anomalies "0.1.12"]
+                 [buddy "2.0.0"]]
 
   :min-lein-version "2.0.0"
   

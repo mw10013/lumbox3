@@ -1,12 +1,25 @@
 {:objects
- {:User {:description "User"
-         :fields      {:id                 {:type (non-null ID)}
-                       :email              {:type        String
-                                            :description "Email of user."}
-                       :encrypted_password {:type        (non-null String)
-                                            :description "Encrypted password of user."}}}}
-
+ {:User                {:description "User"
+                        :fields      {:id                 {:type (non-null ID)}
+                                      :email              {:type        String
+                                                           :description "Email of user."}}}
+  :RegisterUserPayload {:description "Register user payload."
+                        :fields      {:user {:type (non-null :User)}}}
+  :LoginPayload        {:description "Login payload."
+                        :fields      {:user {:type (non-null :User)}}}
+  :LogoutPayload       {:description "Logout payload."
+                        :fields      {:user {:type (non-null :User)}}}}
+ :input-objects
+ {:RegisterUserInput {:fields {:email    {:type (non-null String)}
+                               :password {:type (non-null String)}}}
+  :LoginInput        {:fields {:email    {:type (non-null String)}
+                               :password {:type (non-null String)}}}}
  :queries
  {:users {:type        (list :User)
           :description "Get all users."
-          :resolve     :query/users}}}
+          :resolve     :query/users}}
+ :mutations
+ {:register_user {:type        :RegisterUserPayload
+                  :description "Register user."
+                  :args        {:input {:type (non-null :RegisterUserInput)}}
+                  :resolve     :mutation/register-user}}}

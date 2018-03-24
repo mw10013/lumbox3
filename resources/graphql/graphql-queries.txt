@@ -1,0 +1,20 @@
+query Users {
+  users { id email }
+}
+
+mutation RegisterUser($register_user_input: RegisterUserInput!) {
+  register_user(input: $register_user_input) {
+  	user {
+      id email
+    }
+  }
+}
+
+# Variables
+
+{
+  "register_user_input": {
+    "email": "bee@sting.com",
+    "password": "letmein"
+  }
+}
