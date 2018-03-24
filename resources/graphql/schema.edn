@@ -1,8 +1,8 @@
 {:objects
  {:User                {:description "User"
-                        :fields      {:id                 {:type (non-null ID)}
-                                      :email              {:type        String
-                                                           :description "Email of user."}}}
+                        :fields      {:id    {:type (non-null ID)}
+                                      :email {:type        String
+                                              :description "Email of user."}}}
   :RegisterUserPayload {:description "Register user payload."
                         :fields      {:user {:type (non-null :User)}}}
   :LoginPayload        {:description "Login payload."
@@ -22,4 +22,11 @@
  {:register_user {:type        :RegisterUserPayload
                   :description "Register user."
                   :args        {:input {:type (non-null :RegisterUserInput)}}
-                  :resolve     :mutation/register-user}}}
+                  :resolve     :mutation/register-user}
+  :login         {:type        :LoginPayload
+                  :description "Login."
+                  :args        {:input {:type (non-null :LoginInput)}}
+                  :resolve     :mutation/login}
+  :logout        {:type        :LogoutPayload
+                  :description "Logout."
+                  :resolve     :mutation/logout}}}
