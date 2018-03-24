@@ -44,6 +44,7 @@
     <orderEntry type="library" name="Leiningen: cljsjs/react-dom:15.5.4-0" level="project" />
     <orderEntry type="library" name="Leiningen: cljsjs/react-flip-move:2.9.17-0" level="project" />
     <orderEntry type="library" name="Leiningen: cljsjs/react:15.5.4-0" level="project" />
+    <orderEntry type="library" name="Leiningen: cljsjs/semantic-ui-react:0.78.2-0" level="project" />
     <orderEntry type="library" name="Leiningen: clojure-complete:0.2.4" level="project" />
     <orderEntry type="library" name="Leiningen: clojure-future-spec:1.9.0-alpha17" level="project" />
     <orderEntry type="library" name="Leiningen: clojure-msgpack:1.2.0" level="project" />

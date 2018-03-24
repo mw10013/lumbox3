@@ -4,10 +4,9 @@
             [secretary.core :as secretary]
             [goog.events :as events]
             [goog.history.EventType :as HistoryEventType]
-            [markdown.core :refer [md->html]]
-            [ajax.core :refer [GET POST]]
             [lumbox3.ajax :refer [load-interceptors!]]
-            [lumbox3.events])
+            [lumbox3.events]
+            [lumbox3.views :as views])
   (:import goog.History))
 
 (defn nav-link [uri title page]
@@ -67,12 +66,9 @@
         (secretary/dispatch! (.-token event))))
     (.setEnabled true)))
 
-(defn mount-components []
-  (rf/clear-subscription-cache!)
-  (r/render [#'page] (.getElementById js/document "app")))
-
 (defn init! []
   (rf/dispatch-sync [:initialize-db])
   (load-interceptors!)
   (hook-browser-navigation!)
-  (mount-components))
+  (rf/clear-subscription-cache!)
+  (r/render [views/home-page] (.getElementById js/document "app")))

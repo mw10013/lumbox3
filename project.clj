@@ -37,7 +37,8 @@
                  [selmer "1.11.7"]
                  [camel-snake-kebab "0.4.0"]
                  [com.cognitect/anomalies "0.1.12"]
-                 [buddy "2.0.0"]]
+                 [buddy "2.0.0"]
+                 [cljsjs/semantic-ui-react "0.78.2-0" :exclusions [cljsjs/react cljsjs/react-dom]]]
 
   :min-lein-version "2.0.0"
   
