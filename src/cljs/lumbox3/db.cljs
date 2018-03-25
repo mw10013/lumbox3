@@ -1,4 +1,4 @@
 (ns lumbox3.db)
 
 (def default-db
-  {:page :home})
+  {:main-view :home})
