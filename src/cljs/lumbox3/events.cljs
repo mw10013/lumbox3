@@ -2,8 +2,6 @@
   (:require [lumbox3.db :as db]
             [re-frame.core :refer [dispatch reg-event-db reg-sub]]))
 
-;;dispatchers
-
 (reg-event-db
   :initialize-db
   (fn [_ _]
@@ -12,16 +10,19 @@
 (reg-event-db
   :set-active-page
   (fn [db [_ page]]
-    (assoc db :page page)))
-
-;;subscriptions
+    (assoc db :active-page page)))
 
 (reg-sub
-  :page
+  :active-page
   (fn [db _]
-    (:page db)))
+    (:active-page db)))
+
+(reg-event-db
+  ::set-active-panel
+  (fn [db [_ active-panel]]
+    (assoc db :active-panel active-panel)))
 
 (reg-sub
-  :docs
+  ::active-panel
   (fn [db _]
-    (:docs db)))
+    (:active-panel db)))
