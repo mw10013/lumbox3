@@ -31,6 +31,26 @@
      [:> sui.Button {:as :a :inverted true} "Log in"]
      [:> sui.Button {:as :a :inverted true :style {:marginLeft "0.5em"}} "Register"]]]])
 
+(defn footer []
+  [:> sui.Segment {:inverted true :vertical true :style {:padding "5em 0em"}}
+   [:> sui.Container
+    [:> sui.Grid {:divided true :inverted true :stackable true}
+     [:> sui.Grid.Row
+      [:> sui.Grid.Column {:width 3}
+       [:> sui.Header {:as :h4 :inverted true :content "About"}]
+       [:> sui.List {:link true :inverted true}
+        [:> sui.List.Item {:as :a} "Sitemap"]
+        [:> sui.List.Item {:as :a} "Contact"]]]
+      [:> sui.Grid.Column {:width 3}
+       [:> sui.Header {:as :h4 :inverted true} "Services"]
+       [:> sui.List {:link true :inverted true}
+        [:> sui.List.Item {:as :a} "Pre-Order"]
+        [:> sui.List.Item {:as :a} "FAQ"]]]
+      [:> sui.Grid.Column {:width 7}
+       [:> sui.Header {:as :h4 :inverted true} "Footer Header"]
+       [:p "Extra space for a call to action inside the footer that could help re-engage users."]]]]]]
+  )
+
 (defn home-view []
   [:div
    [:> sui.Header {:as :h1 :content "Home"}]])
@@ -47,4 +67,5 @@
   [:div
    [header]
    [:> sui.Container {:text true :style {:marginTop "2em"}}
-    [(main-views @(rf/subscribe [::events/main-view]))]]])
+    [(main-views @(rf/subscribe [::events/main-view]))]]
+   [footer]])
