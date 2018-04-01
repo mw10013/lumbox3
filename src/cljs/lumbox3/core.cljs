@@ -12,7 +12,16 @@
 (secretary/set-config! :prefix "#")
 
 (secretary/defroute "/" []
-  (rf/dispatch [:lumbox3.events/set-main-view :home]))
+                    (rf/dispatch [:lumbox3.events/set-main-view :home]))
+(secretary/defroute "/about" []
+                    (rf/dispatch [:lumbox3.events/set-main-view :about]))
+(secretary/defroute "/register" []
+                    (rf/dispatch [:lumbox3.events/set-main-view :register]))
+(secretary/defroute "/login" []
+                    (rf/dispatch [:lumbox3.events/set-main-view :login]))
+(secretary/defroute "/logout" []
+                    (rf/dispatch [:lumbox3.events/set-main-view :logout]))
+
 
 ;; History
 ;; must be called after routes have been defined
