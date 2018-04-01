@@ -39,12 +39,13 @@
     <orderEntry type="library" name="Leiningen: clj-time:0.14.2" level="project" />
     <orderEntry type="library" name="Leiningen: clj-tuple:0.2.2" level="project" />
     <orderEntry type="library" name="Leiningen: cljs-ajax:0.7.3" level="project" />
+    <orderEntry type="library" name="Leiningen: cljsjs/antd:3.3.0-0" level="project" />
     <orderEntry type="library" name="Leiningen: cljsjs/create-react-class:15.5.3-0" level="project" />
-    <orderEntry type="library" name="Leiningen: cljsjs/react-dom-server:15.5.4-0" level="project" />
-    <orderEntry type="library" name="Leiningen: cljsjs/react-dom:15.5.4-0" level="project" />
+    <orderEntry type="library" name="Leiningen: cljsjs/moment:2.17.1-1" level="project" />
+    <orderEntry type="library" name="Leiningen: cljsjs/react-dom-server:16.2.0-3" level="project" />
+    <orderEntry type="library" name="Leiningen: cljsjs/react-dom:16.2.0-3" level="project" />
     <orderEntry type="library" name="Leiningen: cljsjs/react-flip-move:2.9.17-0" level="project" />
-    <orderEntry type="library" name="Leiningen: cljsjs/react:15.5.4-0" level="project" />
-    <orderEntry type="library" name="Leiningen: cljsjs/semantic-ui-react:0.78.2-0" level="project" />
+    <orderEntry type="library" name="Leiningen: cljsjs/react:16.2.0-3" level="project" />
     <orderEntry type="library" name="Leiningen: clojure-complete:0.2.4" level="project" />
     <orderEntry type="library" name="Leiningen: clojure-future-spec:1.9.0-alpha17" level="project" />
     <orderEntry type="library" name="Leiningen: clojure-msgpack:1.2.0" level="project" />
@@ -99,6 +100,7 @@
     <orderEntry type="library" name="Leiningen: cprop:0.1.11" level="project" />
     <orderEntry type="library" name="Leiningen: crypto-equality:1.0.0" level="project" />
     <orderEntry type="library" name="Leiningen: crypto-random:1.2.0" level="project" />
+    <orderEntry type="library" name="Leiningen: day8.re-frame/http-fx:0.1.4" level="project" />
     <orderEntry type="library" name="Leiningen: day8.re-frame/re-frame-10x:0.2.0" level="project" />
     <orderEntry type="library" name="Leiningen: de.kotka/lazymap:3.1.0" level="project" />
     <orderEntry type="library" name="Leiningen: doo:0.1.8" level="project" />
@@ -200,11 +202,6 @@
     <orderEntry type="library" name="Leiningen: org.projectodd.wunderboss/wunderboss-web:0.13.1" level="project" />
     <orderEntry type="library" name="Leiningen: org.slf4j/slf4j-api:1.7.25" level="project" />
     <orderEntry type="library" name="Leiningen: org.tobereplaced/lettercase:1.0.0" level="project" />
-    <orderEntry type="library" name="Leiningen: org.webjars.bower/tether:1.4.3" level="project" />
-    <orderEntry type="library" name="Leiningen: org.webjars.npm/popper.js:1.11.1" level="project" />
-    <orderEntry type="library" name="Leiningen: org.webjars/bootstrap:4.0.0" level="project" />
-    <orderEntry type="library" name="Leiningen: org.webjars/font-awesome:5.0.6" level="project" />
-    <orderEntry type="library" name="Leiningen: org.webjars/jquery:3.0.0" level="project" />
     <orderEntry type="library" name="Leiningen: org.webjars/webjars-locator-core:0.27" level="project" />
     <orderEntry type="library" name="Leiningen: org.webjars/webjars-locator:0.27" level="project" />
     <orderEntry type="library" name="Leiningen: org.yaml/snakeyaml:1.13" level="project" />

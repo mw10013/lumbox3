@@ -25,9 +25,12 @@
                  [org.clojure/tools.logging "0.4.0"]
                  [org.clojure/tools.reader "1.2.2"]
                  [org.postgresql/postgresql "42.2.1"]
-                 [org.webjars.bower/tether "1.4.3"]
-                 [org.webjars/bootstrap "4.0.0"]
-                 [org.webjars/font-awesome "5.0.6"]
+                 #_[org.webjars.bower/tether "1.4.3"]
+                 #_[org.webjars/bootstrap "4.0.0"]
+                 #_[org.webjars/font-awesome "5.0.6"]
+                 [cljsjs/react "16.2.0-3"]
+                 [cljsjs/react-dom "16.2.0-3"]
+                 [cljsjs/react-dom-server "16.2.0-3"]
                  [re-frame "0.10.5"]
                  [reagent "0.7.0"]
                  [ring-webjars "0.2.0"]
@@ -38,7 +41,10 @@
                  [camel-snake-kebab "0.4.0"]
                  [com.cognitect/anomalies "0.1.12"]
                  [buddy "2.0.0"]
-                 [cljsjs/semantic-ui-react "0.78.2-0" :exclusions [cljsjs/react cljsjs/react-dom]]]
+                 #_[cljsjs/semantic-ui-react "0.78.2-0" :exclusions [cljsjs/react cljsjs/react-dom]]
+                 [day8.re-frame/http-fx "0.1.4"]
+                 [cljsjs/antd "3.3.0-0"]
+                 [cljsjs/moment "2.17.1-1"]]
 
   :min-lein-version "2.0.0"
   
