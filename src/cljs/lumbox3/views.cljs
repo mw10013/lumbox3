@@ -38,7 +38,6 @@
                      :on-click #(rf/dispatch [::events/set-main-view :register])} "Register"]]]])
 
 (defn footer []
-  [:div "footer"]
   #_[:> sui.Segment {:inverted true :vertical true :style {:padding "5em 0em"}}
    [:> sui.Container
     [:> sui.Grid {:divided true :inverted true :stackable true}
@@ -56,7 +55,7 @@
       [:> sui.Grid.Column {:width 7}
        [:> sui.Header {:as :h4 :inverted true} "Footer Header"]
        [:p "Extra space for a call to action inside the footer that could help re-engage users."]]]]]]
-  )
+  [:> antd.Layout.Footer {:style {:text-align :center}} "Footer"])
 
 (defn home-view []
   [:div
@@ -115,7 +114,6 @@
   [:div
    [:h1 "Log out"]])
 
-
 (def main-views
   {:home     home-view
    :about    about-view
@@ -124,45 +122,26 @@
    :logout   logout-view})
 
 (defn main-view []
-  (let [main-view @(rf/subscribe [::events/main-view])]
-    [(case main-view
-       :home home-view
-       :about about-view
-       :register register-view
-       :login login-view
-       :logout logout-view)]))
+  (let [k @(rf/subscribe [::events/main-view])]
+    [(get main-views k #(vector :div (str "main-view not found: " k)))]))
 
 (defn root-view []
   [:> antd.Layout
    [:> antd.Layout.Header
-    [:div {:style {:float :left :padding-right 20}}
-     [:a {:href "#/" :style {:text-decoration :none}} "Lumbox3"]]
     [:> antd.Menu {:theme :dark :mode :horizontal :selectable false
                    :style {:line-height "64px"}}
-     [:> antd.Menu.Item {:key :1}
+     [:> antd.Menu.Item
+      [:a {:href "#/"}] "Lumbox 3"]
+     [:> antd.Menu.Item
       [:a {:href "#/about"}] "About"]
-     [:> antd.Menu.Item {:key :2}
-      [:> antd.Icon {:type :mail}]
-      "Nav 2"]
      [:> antd.Menu.SubMenu {:title "Admin"}
       [:> antd.Menu.Item "Users"]
       [:> antd.Menu.Item "Groups"]]
-
-     [:> antd.Menu.Item {:key :3} "Nav 3"]
      ; float right appears in opposite order ie. Login Register
      [:> antd.Menu.Item {:style {:float :right}}
       [:a {:href "#/register"} "Register"]]
      [:> antd.Menu.Item {:style {:float :right}}
       [:a {:href "#/login"} "Login"]]]]
-   [:> antd.Layout.Content {:style {:margin 0 :padding 12 :border "1px solid black"}}
-    [main-view]
-    #_[:div {:style {:background "#fff" :padding 12 :min-height 280 :border "1px solid black"}} "Content"]]
-   [:> antd.Layout.Footer {:style {:text-align :center}} "Footer"]])
-
-#_(defn root-view []
-  [:div
-   "root view"
-   #_[header]
-   #_[:> sui.Container {:text true :style {:marginTop "2em"}}
-    [(main-views @(rf/subscribe [::events/main-view]))]]
-   #_[footer]])
+   [:> antd.Layout.Content {:style {:margin 0 :padding "2em" :border "0px solid black"}}
+    [main-view]]
+   [footer]])
