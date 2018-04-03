@@ -17,8 +17,63 @@
    [:div "status: " @(rf/subscribe [:status])]
    [:div "result: " @(rf/subscribe [:result])]])
 
+(defn controlled-input []
+  (let [state (r/atom {})]
+    (fn []
+      [:div
+       [:input {:value (:html-value @state)
+                :on-change #(swap! state assoc :html-value (-> % .-target .-value))}]
+       [:> antd.Input {:value (:antd-value @state) :formNoValidate true
+                       :on-change #(do
+                                     (swap! state assoc :antd-value (-> % .-target .-value))
+                                     (r/flush))}]
+       [:hr]
+       [:div "state:" (pr-str @state)]])))
+
+(defn register-view- []
+  [controlled-input])
+
+(defn dispatch-sync-flush
+  "Dispatch-sync reframe event and then flush reagent.
+   Re-frame event must be a vector and the target value of react-event will
+   be conj'd onto it.
+
+   Antd input components seem to need the DOM to be refreshed synchronously"
+  [reframe-event react-event]
+  (rf/dispatch-sync (conj reframe-event (-> react-event .-target .-value)))
+  (r/flush))
+
 (defn register-view []
-  [:div "register-view"]
+  (let [cache-key :register
+        input @(rf/subscribe [:input cache-key])
+        input-errors @(rf/subscribe [:input-errors cache-key])
+        error-message @(rf/subscribe [:error-message cache-key])
+        form-item-layout {:labelCol   {:xs {:span 24}
+                                       :sm {:span 6}}
+                          :wrapperCol {:xs {:span 24}
+                                       :sm {:span 12}}}]
+    [:> antd.Form {:style     {:max-width "350px"}
+                   :on-submit (fn [e]
+                                (.preventDefault e)
+                                (.stopPropagation e)
+                                (let [[input-errors input] (v/validate-register-user-input @(rf/subscribe [:input cache-key]))]
+                                  (rf/dispatch [:set-input-errors cache-key input-errors])
+                                  #_(when-not input-errors
+                                      (rf/dispatch [:register-user cache-key input]))))}
+     [:> antd.Form.Item (merge form-item-layout {:label "E-mail" :required true}
+                               (when-let [errors (:email input-errors)] {:validateStatus :error :hasFeedback true
+                                                                         :help errors}))
+      [:> antd.Input {:placeholder "E-mail address"
+                      :value       (:email input)
+                      :on-change    (partial dispatch-sync-flush [:set-input cache-key :email])}]]
+     [:> antd.Form.Item (merge form-item-layout {:label "Password" :required true}
+                               (when-let [errors (:password input-errors)] {:validateStatus :error :hasFeecback true
+                                                                            :help           errors}))
+      [:> antd.Input {:id        :password :type :password :placeholder "Password"
+                      :value     (:password input)
+                      :on-change (partial dispatch-sync-flush [:set-input cache-key :password])}]]
+     [:> antd.Button {:type :primary :htmlType :submit} "Register"]
+     [debug-cache cache-key]])
   #_(let [cache-key :register
           input @(rf/subscribe [:input cache-key])
           input-errors @(rf/subscribe [:input-errors cache-key])
