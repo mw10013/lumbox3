@@ -21,9 +21,9 @@
   (let [state (r/atom {})]
     (fn []
       [:div
-       [:input {:value (:html-value @state)
+       [:input {:value     (:html-value @state)
                 :on-change #(swap! state assoc :html-value (-> % .-target .-value))}]
-       [:> antd.Input {:value (:antd-value @state) :formNoValidate true
+       [:> antd.Input {:value     (:antd-value @state) :formNoValidate true
                        :on-change #(do
                                      (swap! state assoc :antd-value (-> % .-target .-value))
                                      (r/flush))}]
@@ -60,15 +60,15 @@
                                 (let [[input-errors input] (v/validate-register-user-input @(rf/subscribe [:input cache-key]))]
                                   (rf/dispatch [:set-input-errors cache-key input-errors])
                                   (when-not input-errors
-                                      (rf/dispatch [:register-user cache-key input]))))}
+                                    (rf/dispatch [:register-user cache-key input]))))}
      [:> antd.Form.Item (merge form-item-layout {:label "E-mail" :required true}
                                (when-let [errors (:email input-errors)] {:validateStatus :error :hasFeedback true
-                                                                         :help errors}))
+                                                                         :help           errors}))
       [:> antd.Input {:placeholder "E-mail address"
                       :value       (:email input)
-                      :on-change    (partial dispatch-sync-flush [:set-input cache-key :email])}]]
+                      :on-change   (partial dispatch-sync-flush [:set-input cache-key :email])}]]
      [:> antd.Form.Item (merge form-item-layout {:label "Password" :required true}
-                               (when-let [errors (:password input-errors)] {:validateStatus :error :hasFeecback true
+                               (when-let [errors (:password input-errors)] {:validateStatus :error :hasFeedback true
                                                                             :help           errors}))
       [:> antd.Input {:id        :password :type :password :placeholder "Password"
                       :value     (:password input)
@@ -77,20 +77,45 @@
      [debug-cache cache-key]]))
 
 (defn login-view []
-  [:div "login-view"
-   [debug-cache :login]]
-  #_[:> sui.Grid {:textAlign "center" :style {:height "100%"} :verticalAlign "middle"}
-     [:> sui.Grid.Column {:style {:maxWidth 450}}
-      [:> sui.Header {:as :h2 :color "teal" :textAlign "center"} "Log in to your account"]
-      [:> sui.Form {:size :large}
-       [:> sui.Segment {:stacked true}
-        [:> sui.Form.Input {:fluid true :icon :user :iconPosition :left :placeholder "E-mail address"}]
-        [:> sui.Form.Input {:fluid true :icon :lock :iconPosition :left :placeholder "Password" :type :password}]
-        [:> sui.Button {:color :teal :fluid true :size :large} "Login"]]]]])
+  (let [cache-key :login
+        input @(rf/subscribe [:input cache-key])
+        input-errors @(rf/subscribe [:input-errors cache-key])
+        error-message @(rf/subscribe [:error-message cache-key])
+        form-item-layout {:labelCol   {:xs {:span 24}
+                                       :sm {:span 6}}
+                          :wrapperCol {:xs {:span 24}
+                                       :sm {:span 12}}}]
+    #_(when error-message [:div.alert.alert-danger error-message])
+    [:> antd.Form {:style     {:max-width "350px"}
+                   :on-submit (fn [e]
+                                (.preventDefault e)
+                                (.stopPropagation e)
+                                (let [[input-errors input] (v/validate-login-input @(rf/subscribe [:input cache-key]))]
+                                  (rf/dispatch [:set-input-errors cache-key input-errors])
+                                  (when-not input-errors
+                                    (rf/dispatch [:login cache-key input]))))}
+     [:> antd.Form.Item (merge form-item-layout {:label "E-mail" :required true}
+                               (when-let [errors (:email input-errors)] {:validateStatus :error :hasFeedback true
+                                                                         :help           errors}))
+      [:> antd.Input {:placeholder "E-mail address"
+                      :value       (:email input)
+                      :on-change   (partial dispatch-sync-flush [:set-input cache-key :email])}]]
+     [:> antd.Form.Item (merge form-item-layout {:label "Password" :required true}
+                               (when-let [errors (:password input-errors)] {:validateStatus :error :hasFeedback true
+                                                                            :help           errors}))
+      [:> antd.Input {:id        :password :type :password :placeholder "Password"
+                      :value     (:password input)
+                      :on-change (partial dispatch-sync-flush [:set-input cache-key :password])}]]
+     [:> antd.Button {:type :primary :htmlType :submit} "Login"]
+     [debug-cache cache-key]]))
 
 (defn logout-view []
-  [:div
-   [:h1 "Log out"]])
+  (let [cache-key :logout
+        error-message @(rf/subscribe [:error-message cache-key])]
+    [:div
+     [:h3 "Logout"]
+     (when error-message [:div.alert.alert-danger error-message])
+     [debug-cache cache-key]]))
 
 (defn home-view []
   [:div
@@ -128,7 +153,7 @@
                           [:a {:href "#/register"} "Register"]])
       (if identity
         [:> antd.Menu.Item {:style {:float :right}}
-         [:a {:href "#/logout"} "Logout"]]
+         [:a {:on-click #(rf/dispatch [:logout :logout])} "Logout"]]
         [:> antd.Menu.Item {:style {:float :right}}
          [:a {:href "#/login"} "Login"]])]]))
 

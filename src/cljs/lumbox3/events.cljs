@@ -96,3 +96,48 @@
         (assoc :result result)
         (update :cache dissoc cache-key)
         (assoc :main-view :login))))
+
+(rf/reg-event-fx
+  :login
+  (fn [{db :db} [_ cache-key input]]
+    {:http-xhrio {:method          :post
+                  :uri             "/api"
+                  :params          {:query     "mutation Login($login_input: LoginInput!) {
+                  login(input: $login_input) { user { email } } }"
+                                    :variables {:login_input (csk-extras/transform-keys csk/->snake_case input)}}
+                  :format          (ajax/transit-request-format)
+                  :response-format (ajax/transit-response-format)
+                  :on-success      [:login-succeeded cache-key]
+                  :on-failure      [:http-xhrio-graphql-failed cache-key]}}))
+
+(rf/reg-event-db
+  :login-succeeded
+  (fn [db [e cache-key result]]
+    (-> db
+        (assoc :status e)
+        (assoc :result result)
+        (assoc :identity (->> result :data :login :user (csk-extras/transform-keys csk/->kebab-case)
+                             #_(update :roles #(->> % (map gql-enum-to-clj) set))))
+        (update :cache dissoc cache-key)
+        (assoc :main-view :home))))
+
+(rf/reg-event-fx
+  :logout
+  (fn [{db :db} [_ cache-key input]]
+    {:http-xhrio {:method          :post
+                  :uri             "/api"
+                  :params          {:query "mutation { logout { user { email } } }"}
+                  :format          (ajax/transit-request-format)
+                  :response-format (ajax/transit-response-format)
+                  :on-success      [:logout-succeeded cache-key]
+                  :on-failure      [:http-xhrio-graphql-failed cache-key]}}))
+
+(rf/reg-event-db
+  :logout-succeeded
+  (fn [db [e cache-key result]]
+    (-> db
+        (assoc :status e)
+        (assoc :result result)
+        (dissoc :identity)
+        (update :cache dissoc cache-key)
+        (assoc :main-view :logout))))
