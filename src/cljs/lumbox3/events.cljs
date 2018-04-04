@@ -2,7 +2,9 @@
   (:require [lumbox3.db :as db]
             [re-frame.core :as rf :refer [dispatch reg-event-db reg-sub reg-sub-raw subscribe]]
             [ajax.core :as ajax]
-            [day8.re-frame.http-fx])
+            [day8.re-frame.http-fx]
+            [camel-snake-kebab.extras :as csk-extras]
+            [camel-snake-kebab.core :as csk])
   (:require-macros [reagent.ratom :refer [reaction]]))
 
 (reg-event-db
@@ -72,3 +74,25 @@
           (assoc :status "http xhrio graphql failed")
           (assoc :result result)
           (update-in [:cache k] assoc :input-errors (:input-errors error) :error-message (:message error))))))
+
+(rf/reg-event-fx
+  :register-user
+  (fn [{db :db} [_ cache-key input]]
+    {:http-xhrio {:method          :post
+                  :uri             "/api"
+                  :params          {:query     "mutation RegisterUser($register_user_input: RegisterUserInput!) {
+                  register_user(input: $register_user_input) { user { email id } } }"
+                                    :variables {:register_user_input (csk-extras/transform-keys csk/->snake_case input)}}
+                  :format          (ajax/transit-request-format)
+                  :response-format (ajax/transit-response-format)
+                  :on-success      [:register-user-succeeded cache-key]
+                  :on-failure      [:http-xhrio-graphql-failed cache-key]}}))
+
+(rf/reg-event-db
+  :register-user-succeeded
+  (fn [db [e cache-key result]]
+    (-> db
+        (assoc :status e)
+        (assoc :result result)
+        (update :cache dissoc cache-key)
+        (assoc :main-view :login))))

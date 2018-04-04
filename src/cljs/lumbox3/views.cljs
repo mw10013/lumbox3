@@ -52,13 +52,14 @@
                                        :sm {:span 6}}
                           :wrapperCol {:xs {:span 24}
                                        :sm {:span 12}}}]
+    #_(when error-message [:div.alert.alert-danger error-message])
     [:> antd.Form {:style     {:max-width "350px"}
                    :on-submit (fn [e]
                                 (.preventDefault e)
                                 (.stopPropagation e)
                                 (let [[input-errors input] (v/validate-register-user-input @(rf/subscribe [:input cache-key]))]
                                   (rf/dispatch [:set-input-errors cache-key input-errors])
-                                  #_(when-not input-errors
+                                  (when-not input-errors
                                       (rf/dispatch [:register-user cache-key input]))))}
      [:> antd.Form.Item (merge form-item-layout {:label "E-mail" :required true}
                                (when-let [errors (:email input-errors)] {:validateStatus :error :hasFeedback true
@@ -73,34 +74,11 @@
                       :value     (:password input)
                       :on-change (partial dispatch-sync-flush [:set-input cache-key :password])}]]
      [:> antd.Button {:type :primary :htmlType :submit} "Register"]
-     [debug-cache cache-key]])
-  #_(let [cache-key :register
-          input @(rf/subscribe [:input cache-key])
-          input-errors @(rf/subscribe [:input-errors cache-key])
-          error-message @(rf/subscribe [:error-message cache-key])]
-      [:> sui.Grid {:textAlign "center" #_:style #_{:height "100%"} :verticalAlign "middle"}
-       [:> sui.Grid.Column {:style {:maxWidth 450}}
-        [:> sui.Header {:as :h2 :color "teal" :textAlign "center"} "Register for an account"]
-        [:> sui.Form {:size      :large
-                      :on-submit (fn [e]
-                                   (.preventDefault e)
-                                   (.stopPropagation e)
-                                   (let [[input-errors input] (v/validate-register-user-input @(rf/subscribe [:input cache-key]))]
-                                     (rf/dispatch [:set-input-errors cache-key input-errors])
-                                     #_(when-not input-errors
-                                         (rf/dispatch [:register-user cache-key input]))))}
-         [:> sui.Segment {:stacked true}
-          [:> sui.Form.Input {:fluid     true :icon :user :iconPosition :left :placeholder "E-mail address"
-                              :value     (:email input) :label "E-mail" :required true
-                              :on-change #(rf/dispatch [:set-input cache-key :email (-> % .-target .-value)])}]
-          [:> sui.Form.Input {:fluid     true :icon :lock :iconPosition :left :placeholder "Password" :type :password
-                              :value     (:password input)
-                              :on-change #(rf/dispatch [:set-input cache-key :password (-> % .-target .-value)])}]
-          [:> sui.Button {:color :teal :fluid true :size :large} "Register"]
-          [debug-cache cache-key]]]]]))
+     [debug-cache cache-key]]))
 
 (defn login-view []
-  [:div "login-view"]
+  [:div "login-view"
+   [debug-cache :login]]
   #_[:> sui.Grid {:textAlign "center" :style {:height "100%"} :verticalAlign "middle"}
      [:> sui.Grid.Column {:style {:maxWidth 450}}
       [:> sui.Header {:as :h2 :color "teal" :textAlign "center"} "Log in to your account"]
