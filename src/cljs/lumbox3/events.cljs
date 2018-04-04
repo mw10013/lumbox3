@@ -88,14 +88,14 @@
                   :on-success      [:register-user-succeeded cache-key]
                   :on-failure      [:http-xhrio-graphql-failed cache-key]}}))
 
-(rf/reg-event-db
+(rf/reg-event-fx
   :register-user-succeeded
-  (fn [db [e cache-key result]]
-    (-> db
-        (assoc :status e)
-        (assoc :result result)
-        (update :cache dissoc cache-key)
-        (assoc :main-view :login))))
+  (fn [{db :db} [e cache-key result]]
+    {:db (-> db
+             (assoc :status e)
+             (assoc :result result)
+             (update :cache dissoc cache-key))
+     :navigate "/login"}))
 
 (rf/reg-event-fx
   :login
@@ -110,16 +110,16 @@
                   :on-success      [:login-succeeded cache-key]
                   :on-failure      [:http-xhrio-graphql-failed cache-key]}}))
 
-(rf/reg-event-db
+(rf/reg-event-fx
   :login-succeeded
-  (fn [db [e cache-key result]]
-    (-> db
-        (assoc :status e)
-        (assoc :result result)
-        (assoc :identity (->> result :data :login :user (csk-extras/transform-keys csk/->kebab-case)
-                             #_(update :roles #(->> % (map gql-enum-to-clj) set))))
-        (update :cache dissoc cache-key)
-        (assoc :main-view :home))))
+  (fn [{db :db} [e cache-key result]]
+    {:db (-> db
+             (assoc :status e)
+             (assoc :result result)
+             (assoc :identity (->> result :data :login :user (csk-extras/transform-keys csk/->kebab-case)
+                                   #_(update :roles #(->> % (map gql-enum-to-clj) set))))
+             (update :cache dissoc cache-key))
+     :navigate "/"}))
 
 (rf/reg-event-fx
   :logout
@@ -132,12 +132,12 @@
                   :on-success      [:logout-succeeded cache-key]
                   :on-failure      [:http-xhrio-graphql-failed cache-key]}}))
 
-(rf/reg-event-db
+(rf/reg-event-fx
   :logout-succeeded
-  (fn [db [e cache-key result]]
-    (-> db
-        (assoc :status e)
-        (assoc :result result)
-        (dissoc :identity)
-        (update :cache dissoc cache-key)
-        (assoc :main-view :logout))))
+  (fn [{db :db} [e cache-key result]]
+    {:db (-> db
+             (assoc :status e)
+             (assoc :result result)
+             (dissoc :identity)
+             (update :cache dissoc cache-key))
+     :navigate "/logout"}))

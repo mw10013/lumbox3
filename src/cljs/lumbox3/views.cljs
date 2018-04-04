@@ -119,7 +119,8 @@
 
 (defn home-view []
   [:div
-   [:h1 "Home"]])
+   [:h1 "Home"]
+   [debug-cache :login]])
 
 (defn about-view []
   [:div
