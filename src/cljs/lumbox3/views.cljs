@@ -59,12 +59,14 @@
                                (when-let [errors (:email input-errors)] {:validateStatus :error :hasFeedback true
                                                                          :help           errors}))
       [:> antd.Input {:placeholder "E-mail address"
+                      :prefix      (r/as-element [:> antd.Icon {:type :user :style {:color "rgba(0,0,0,.25)"}}])
                       :value       (:email input)
                       :on-change   (partial dispatch-sync-flush [:set-input cache-key :email])}]]
      [:> antd.Form.Item (merge form-item-layout {:label "Password" :required true}
                                (when-let [errors (:password input-errors)] {:validateStatus :error :hasFeedback true
                                                                             :help           errors}))
-      [:> antd.Input {:id        :password :type :password :placeholder "Password"
+      [:> antd.Input {:type :password :placeholder "Password"
+                      :prefix      (r/as-element [:> antd.Icon {:type :lock :style {:color "rgba(0,0,0,.25)"}}])
                       :value     (:password input)
                       :on-change (partial dispatch-sync-flush [:set-input cache-key :password])}]]
      [:> antd.Form.Item tail-form-item-layout
@@ -92,12 +94,14 @@
                                (when-let [errors (:email input-errors)] {:validateStatus :error :hasFeedback true
                                                                          :help           errors}))
       [:> antd.Input {:placeholder "E-mail address"
+                      :prefix      (r/as-element [:> antd.Icon {:type :user :style {:color "rgba(0,0,0,.25)"}}])
                       :value       (:email input)
                       :on-change   (partial dispatch-sync-flush [:set-input cache-key :email])}]]
      [:> antd.Form.Item (merge form-item-layout {:label "Password" :required true}
                                (when-let [errors (:password input-errors)] {:validateStatus :error :hasFeedback true
                                                                             :help           errors}))
-      [:> antd.Input {:id        :password :type :password :placeholder "Password"
+      [:> antd.Input {:type :password :placeholder "Password"
+                      :prefix      (r/as-element [:> antd.Icon {:type :lock :style {:color "rgba(0,0,0,.25)"}}])
                       :value     (:password input)
                       :on-change (partial dispatch-sync-flush [:set-input cache-key :password])}]]
      [:> antd.Form.Item tail-form-item-layout
