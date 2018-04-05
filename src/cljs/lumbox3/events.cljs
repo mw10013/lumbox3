@@ -66,6 +66,11 @@
   (fn [db [_ cache-key input-errors]]
     (assoc-in db [:cache cache-key :input-errors] input-errors)))
 
+(reg-event-db
+  :set-error-message
+  (fn [db [_ cache-key error-message]]
+    (assoc-in db [:cache cache-key :error-message] error-message)))
+
 (rf/reg-event-db
   :http-xhrio-graphql-failed
   (fn [db [_ k result]]

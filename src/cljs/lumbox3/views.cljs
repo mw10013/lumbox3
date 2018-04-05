@@ -43,15 +43,18 @@
         input @(rf/subscribe [:input cache-key])
         input-errors @(rf/subscribe [:input-errors cache-key])
         error-message @(rf/subscribe [:error-message cache-key])]
-    #_(when error-message [:div.alert.alert-danger error-message])
-    [:> antd.Form {                                         ;:style     {:max-width- "350px"}
-                   :on-submit (fn [e]
+    [:> antd.Form {:on-submit (fn [e]
                                 (.preventDefault e)
                                 (.stopPropagation e)
                                 (let [[input-errors input] (v/validate-register-user-input @(rf/subscribe [:input cache-key]))]
                                   (rf/dispatch [:set-input-errors cache-key input-errors])
+                                  (rf/dispatch [:set-error-message cache-key nil])
                                   (when-not input-errors
                                     (rf/dispatch [:register-user cache-key input]))))}
+     (when error-message
+       [:> antd.Row
+        [:> antd.Col (:wrapperCol tail-form-item-layout)
+         [:> antd.Alert {:type :error :banner true :message error-message}]]])
      [:> antd.Form.Item (merge form-item-layout {:label "E-mail" :required true}
                                (when-let [errors (:email input-errors)] {:validateStatus :error :hasFeedback true
                                                                          :help           errors}))
@@ -72,16 +75,19 @@
   (let [cache-key :login
         input @(rf/subscribe [:input cache-key])
         input-errors @(rf/subscribe [:input-errors cache-key])
-        error-message @(rf/subscribe [:error-message cache-key])
-        ]
-    #_(when error-message [:div.alert.alert-danger error-message])
+        error-message @(rf/subscribe [:error-message cache-key])]
     [:> antd.Form {:on-submit (fn [e]
                                 (.preventDefault e)
                                 (.stopPropagation e)
                                 (let [[input-errors input] (v/validate-login-input @(rf/subscribe [:input cache-key]))]
                                   (rf/dispatch [:set-input-errors cache-key input-errors])
+                                  (rf/dispatch [:set-error-message cache-key nil])
                                   (when-not input-errors
                                     (rf/dispatch [:login cache-key input]))))}
+     (when error-message
+       [:> antd.Row
+        [:> antd.Col (:wrapperCol tail-form-item-layout)
+         [:> antd.Alert {:type :error :banner true :message error-message}]]])
      [:> antd.Form.Item (merge form-item-layout {:label "E-mail" :required true}
                                (when-let [errors (:email input-errors)] {:validateStatus :error :hasFeedback true
                                                                          :help           errors}))
