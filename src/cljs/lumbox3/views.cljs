@@ -51,10 +51,14 @@
                                   (rf/dispatch [:set-error-message cache-key nil])
                                   (when-not input-errors
                                     (rf/dispatch [:register-user cache-key input]))))}
-     (when error-message
+     [:h2 {:style {:text-align :center}} "Register"]
+     #_(when error-message
        [:> antd.Row
         [:> antd.Col (:wrapperCol tail-form-item-layout)
-         [:> antd.Alert {:type :error :banner true :message error-message}]]])
+         [:> antd.Alert {:type :error :message error-message}]]])
+     (when error-message
+       [:> antd.Form.Item (merge form-item-layout {:label " " :colon false})
+        [:> antd.Alert {:type :error :message error-message}]])
      [:> antd.Form.Item (merge form-item-layout {:label "E-mail" :required true}
                                (when-let [errors (:email input-errors)] {:validateStatus :error :hasFeedback true
                                                                          :help           errors}))
@@ -86,7 +90,8 @@
                                   (rf/dispatch [:set-error-message cache-key nil])
                                   (when-not input-errors
                                     (rf/dispatch [:login cache-key input]))))}
-     (when error-message
+     [:h2 {:style {:text-align :center}} "Login"]
+      (when error-message
        [:> antd.Row
         [:> antd.Col (:wrapperCol tail-form-item-layout)
          [:> antd.Alert {:type :error :banner true :message error-message}]]])
