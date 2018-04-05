@@ -17,21 +17,16 @@
    [:div "status: " @(rf/subscribe [:status])]
    [:div "result: " @(rf/subscribe [:result])]])
 
-(defn controlled-input []
-  (let [state (r/atom {})]
-    (fn []
-      [:div
-       [:input {:value     (:html-value @state)
-                :on-change #(swap! state assoc :html-value (-> % .-target .-value))}]
-       [:> antd.Input {:value     (:antd-value @state) :formNoValidate true
-                       :on-change #(do
-                                     (swap! state assoc :antd-value (-> % .-target .-value))
-                                     (r/flush))}]
-       [:hr]
-       [:div "state:" (pr-str @state)]])))
+(def form-item-layout {:labelCol   {:xs {:span 24}
+                                    :sm {:span 7}
+                                    :lg {:span 10}}
+                       :wrapperCol {:xs {:span 24}
+                                    :sm {:span 10}
+                                    :lg {:span 6}}})
 
-(defn register-view- []
-  [controlled-input])
+(def tail-form-item-layout {:wrapperCol {:xs {:span 24 :offset 0}
+                                         :sm {:span 10 :offset 7}
+                                         :lg {:span 6 :offset 10}}})
 
 (defn dispatch-sync-flush
   "Dispatch-sync reframe event and then flush reagent.
@@ -47,13 +42,9 @@
   (let [cache-key :register
         input @(rf/subscribe [:input cache-key])
         input-errors @(rf/subscribe [:input-errors cache-key])
-        error-message @(rf/subscribe [:error-message cache-key])
-        form-item-layout {:labelCol   {:xs {:span 24}
-                                       :sm {:span 6}}
-                          :wrapperCol {:xs {:span 24}
-                                       :sm {:span 12}}}]
+        error-message @(rf/subscribe [:error-message cache-key])]
     #_(when error-message [:div.alert.alert-danger error-message])
-    [:> antd.Form {:style     {:max-width "350px"}
+    [:> antd.Form {                                         ;:style     {:max-width- "350px"}
                    :on-submit (fn [e]
                                 (.preventDefault e)
                                 (.stopPropagation e)
@@ -73,7 +64,8 @@
       [:> antd.Input {:id        :password :type :password :placeholder "Password"
                       :value     (:password input)
                       :on-change (partial dispatch-sync-flush [:set-input cache-key :password])}]]
-     [:> antd.Button {:type :primary :htmlType :submit} "Register"]
+     [:> antd.Form.Item tail-form-item-layout
+      [:> antd.Button {:type :primary :htmlType :submit} "Register"]]
      [debug-cache cache-key]]))
 
 (defn login-view []
@@ -81,13 +73,9 @@
         input @(rf/subscribe [:input cache-key])
         input-errors @(rf/subscribe [:input-errors cache-key])
         error-message @(rf/subscribe [:error-message cache-key])
-        form-item-layout {:labelCol   {:xs {:span 24}
-                                       :sm {:span 6}}
-                          :wrapperCol {:xs {:span 24}
-                                       :sm {:span 12}}}]
+        ]
     #_(when error-message [:div.alert.alert-danger error-message])
-    [:> antd.Form {:style     {:max-width "350px"}
-                   :on-submit (fn [e]
+    [:> antd.Form {:on-submit (fn [e]
                                 (.preventDefault e)
                                 (.stopPropagation e)
                                 (let [[input-errors input] (v/validate-login-input @(rf/subscribe [:input cache-key]))]
@@ -106,7 +94,8 @@
       [:> antd.Input {:id        :password :type :password :placeholder "Password"
                       :value     (:password input)
                       :on-change (partial dispatch-sync-flush [:set-input cache-key :password])}]]
-     [:> antd.Button {:type :primary :htmlType :submit} "Login"]
+     [:> antd.Form.Item tail-form-item-layout
+      [:> antd.Button {:type :primary :htmlType :submit} "Login"]]
      [debug-cache cache-key]]))
 
 (defn logout-view []

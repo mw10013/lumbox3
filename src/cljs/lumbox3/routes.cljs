@@ -19,6 +19,9 @@
 (secretary/defroute "/logout" []
                     (rf/dispatch [:lumbox3.events/set-main-view :logout]))
 
+(secretary/defroute user-path "/users/:id" [id]
+                    (js/console.log (str "User " id "'s path")))
+
 ;; https://lispcast.com/mastering-client-side-routing-with-secretary-and-goog-history/
 (defn history-did-navigate [e]
   (js/console.log (str "history-did-navigate: " (.-token e)))
