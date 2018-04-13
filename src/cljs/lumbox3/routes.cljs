@@ -1,26 +1,25 @@
 (ns lumbox3.routes
   (:require [re-frame.core :as rf]
-            [secretary.core :as secretary]
+            [reitit.core :as r]
             [goog.events :as events]
             [goog.history.EventType :as HistoryEventType]
             [lumbox3.events])
   (:import goog.History))
 
-(secretary/set-config! :prefix "#")
+(def router
+  (r/router
+    ["/"
+     ["" :home]
+     ["about" :about]
+     ["register" :register]
+     ["login" :login]
+     ["logout" :logout]]))
 
-(secretary/defroute "/" []
-                    (rf/dispatch [:lumbox3.events/set-main-view :home]))
-(secretary/defroute "/about" []
-                    (rf/dispatch [:lumbox3.events/set-main-view :about]))
-(secretary/defroute "/register" []
-                    (rf/dispatch [:lumbox3.events/set-main-view :register]))
-(secretary/defroute "/login" []
-                    (rf/dispatch [:lumbox3.events/set-main-view :login]))
-(secretary/defroute "/logout" []
-                    (rf/dispatch [:lumbox3.events/set-main-view :logout]))
-
-(secretary/defroute user-path "/users/:id" [id]
-                    (js/console.log (str "User " id "'s path")))
+(defn dispatch-path
+  "TODO: handle 404."
+  [path]
+  (if-let [match (r/match-by-path router path)]
+    (rf/dispatch [:lumbox3.events/set-main-view (get-in match [:data :name])])))
 
 ;; https://lispcast.com/mastering-client-side-routing-with-secretary-and-goog-history/
 (defn history-did-navigate [e]
@@ -36,7 +35,7 @@
     ;; let's scroll to the top to simulate a navigation
     #_(js/window.scrollTo 0 0))
 
-  (secretary/dispatch! (.-token e)))
+  (dispatch-path (.-token e)))
 
 (defonce history
          (doto (History.)
