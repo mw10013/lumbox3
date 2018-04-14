@@ -16,14 +16,15 @@
      ["logout" :logout]
      ["error" :error]]))
 
+;; TODO: handle 404
+;; TODO: handle query params
 (defn dispatch-path
-  "TODO: handle 404."
   [path-with-query-string]
   (let [uri (goog.Uri. path-with-query-string)]
     (console.log "dispatch-path:" path-with-query-string (.getPath uri) (.getQuery uri))
     (if-let [match (r/match-by-path router (.getPath uri))]
-      (rf/dispatch [:lumbox3.events/set-main-view (get-in match [:data :name])])
-      (rf/dispatch [:lumbox3.events/set-main-view :invalid-path]))))
+      (rf/dispatch [:set-route match])
+      (rf/dispatch [:set-route nil]))))
 
 ;; https://lispcast.com/mastering-client-side-routing-with-secretary-and-goog-history/
 (defn history-did-navigate [e]

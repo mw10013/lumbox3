@@ -25,16 +25,6 @@
 (rf/reg-sub :status (fn [db _] (:status db)))
 (rf/reg-sub :result (fn [db _] (:result db)))
 
-(rf/reg-event-db
-  ::set-main-view
-  (fn [db [_ main-view]]
-    (assoc db :main-view main-view)))
-
-(rf/reg-sub
-  ::main-view
-  (fn [db _]
-    (:main-view db)))
-
 (rf/reg-sub
   :cache
   (fn [db [_ k]] (get-in db [:cache k])))

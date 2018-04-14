@@ -127,7 +127,7 @@
    :logout   logout-view})
 
 (defn main-view []
-  (let [k @(rf/subscribe [::events/main-view])]
+  (let [k @(rf/subscribe [:route-name])]
     [(get main-views k #(vector :div (str "main-view not found: " k)))]))
 
 (defn header []
