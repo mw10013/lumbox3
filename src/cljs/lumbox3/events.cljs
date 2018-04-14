@@ -1,72 +1,76 @@
 (ns lumbox3.events
   (:require [lumbox3.db :as db]
-            [re-frame.core :as rf :refer [dispatch reg-event-db reg-sub reg-sub-raw subscribe]]
+            [re-frame.core :as rf]
             [ajax.core :as ajax]
             [day8.re-frame.http-fx]
             [camel-snake-kebab.extras :as csk-extras]
             [camel-snake-kebab.core :as csk])
-  (:require-macros [reagent.ratom :refer [reaction]]))
+  #_(:require-macros [reagent.ratom :refer [reaction]]))
 
-(reg-event-db
-  :initialize-db
-  (fn [_ _]
-    db/default-db))
+;; https://github.com/Day8/re-frame/blob/master/docs/SubscriptionFlow.md
+;; https://github.com/Day8/re-frame/blob/master/examples/todomvc/src/todomvc/subs.cljs
 
-(reg-sub
-  :identity
-  (fn [db _] (:identity db)))
+(rf/reg-event-db :initialize-db (fn [_ _] db/default-db))
 
-(reg-sub
-  :status
-  (fn [db _] (:status db)))
+(rf/reg-event-db :set-route (fn [db [_ route]] (assoc db :route route)))
+(rf/reg-sub :route (fn [db _] (:route db)))
 
-(reg-sub
-  :result
-  (fn [db _] (:result db)))
+(rf/reg-sub
+  :route-name
+  :<- [:route]
+  (fn [route query-v] (get-in route [:data :name])))
 
-(reg-event-db
+(rf/reg-sub :identity (fn [db _] (:identity db)))
+
+(rf/reg-sub :status (fn [db _] (:status db)))
+(rf/reg-sub :result (fn [db _] (:result db)))
+
+(rf/reg-event-db
   ::set-main-view
   (fn [db [_ main-view]]
     (assoc db :main-view main-view)))
 
-(reg-sub
+(rf/reg-sub
   ::main-view
   (fn [db _]
     (:main-view db)))
 
-(reg-sub
+(rf/reg-sub
   :cache
   (fn [db [_ k]] (get-in db [:cache k])))
 
-(reg-sub-raw
+#_(reg-sub-raw
   :input
   (fn [_ [_ cache-key]]
     (reaction
       (:input @(rf/subscribe [:cache cache-key])))))
 
-(reg-sub-raw
+(rf/reg-sub
+  :input
+  (fn [[_ cache-key] _] (rf/subscribe [:cache cache-key]))
+  (fn [cache] (:input cache)))
+
+(rf/reg-sub
   :input-errors
-  (fn [_ [_ cache-key]]
-    (reaction
-      (:input-errors @(rf/subscribe [:cache cache-key])))))
+  (fn [[_ cache-key]] (rf/subscribe [:cache cache-key]))
+  (fn [cache] (:input-errors cache)))
 
-(reg-sub-raw
+(rf/reg-sub
   :error-message
-  (fn [_ [_ cache-key]]
-    (reaction
-      (:error-message @(rf/subscribe [:cache cache-key])))))
+  (fn [[_ cache-key]] (rf/subscribe [:cache cache-key]))
+  (fn [cache] (:error-message cache)))
 
-(reg-event-db
+(rf/reg-event-db
   :set-input
   (fn [db [_ cache-key k v]]
     (assoc-in db [:cache cache-key :input k] v)))
 
-(reg-event-db
+(rf/reg-event-db
   :set-input-errors
   (fn [db [_ cache-key input-errors]]
     (assoc-in db [:cache cache-key :input-errors] input-errors)))
 
-(reg-event-db
+(rf/reg-event-db
   :set-error-message
   (fn [db [_ cache-key error-message]]
     (assoc-in db [:cache cache-key :error-message] error-message)))

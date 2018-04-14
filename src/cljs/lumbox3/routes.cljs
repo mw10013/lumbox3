@@ -4,7 +4,7 @@
             [goog.events :as events]
             [goog.history.EventType :as HistoryEventType]
             [lumbox3.events])
-  (:import goog.History))
+  (:import goog.History goog.Uri))
 
 (def router
   (r/router
@@ -13,13 +13,17 @@
      ["about" :about]
      ["register" :register]
      ["login" :login]
-     ["logout" :logout]]))
+     ["logout" :logout]
+     ["error" :error]]))
 
 (defn dispatch-path
   "TODO: handle 404."
-  [path]
-  (if-let [match (r/match-by-path router path)]
-    (rf/dispatch [:lumbox3.events/set-main-view (get-in match [:data :name])])))
+  [path-with-query-string]
+  (let [uri (goog.Uri. path-with-query-string)]
+    (console.log "dispatch-path:" path-with-query-string (.getPath uri) (.getQuery uri))
+    (if-let [match (r/match-by-path router (.getPath uri))]
+      (rf/dispatch [:lumbox3.events/set-main-view (get-in match [:data :name])])
+      (rf/dispatch [:lumbox3.events/set-main-view :invalid-path]))))
 
 ;; https://lispcast.com/mastering-client-side-routing-with-secretary-and-goog-history/
 (defn history-did-navigate [e]

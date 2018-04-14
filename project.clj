@@ -45,7 +45,8 @@
                  #_[cljsjs/semantic-ui-react "0.78.2-0" :exclusions [cljsjs/react cljsjs/react-dom]]
                  [day8.re-frame/http-fx "0.1.4"]
                  [cljsjs/antd "3.3.0-0"]
-                 [cljsjs/moment "2.17.1-1"]]
+                 [cljsjs/moment "2.17.1-1"]
+                 #_[com.cemerick/url "0.1.1"]]
 
   :min-lein-version "2.0.0"
   
