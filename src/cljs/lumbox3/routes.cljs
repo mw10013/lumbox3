@@ -16,6 +16,16 @@
      ["logout" :logout]
      ["error" :error]]))
 
+;; TODO: routes: path: why does match-by-name! not throw exception
+(defn path
+  [route-name & path-params]
+  (:path (apply r/match-by-name! router route-name path-params)))
+
+(defn href
+  "Appends # to path for href in link."
+  [route-name & path-params]
+  (str "#"(apply path route-name path-params)))
+
 ;; TODO: handle 404
 ;; TODO: handle query params
 (defn dispatch-path
@@ -29,27 +39,33 @@
 ;; https://lispcast.com/mastering-client-side-routing-with-secretary-and-goog-history/
 (defn history-did-navigate [e]
   (js/console.log (str "history-did-navigate: " (.-token e)))
-  #_(js/console.log e)
 
-  ;; we are checking if this event is due to user action,
-  ;; such as click a link, a back button, etc.
-  ;; as opposed to programmatically setting the URL with the API
+  ;; isNavigation indicates user action as opposed to programmatic.
   (when-not (.-isNavigation e)
-    ;; in this case, we're setting it
     (js/console.log "history-did-navigate: Token set programmatically")
-    ;; let's scroll to the top to simulate a navigation
+    ;; scroll to the top to simulate a navigation
     #_(js/window.scrollTo 0 0))
 
-  (dispatch-path (.-token e)))
+  ;; When goog history is enabled, it will dispatch an initial token,
+  ;; which may be empty.
+  (if (empty? (.-token e))
+    (.setToken (.-target e) "/")
+    (dispatch-path (.-token e))))
 
 (defonce history
          (doto (History.)
            (goog.events/listen HistoryEventType/NAVIGATE
                                ;; wrap in a fn to allow live reloading
                                #(history-did-navigate %))
-           (.setEnabled true)))
+           #_(.setEnabled true)))
 
 ;; https://google.github.io/closure-library/api/goog.History.html
 (defn navigate [token]
   (.setToken history token))
 
+(defn enable-history!
+  "Enable goog history.
+   History will dispatch an initial navigate event so may want to
+   enable after app db and events set up."
+  []
+  (.setEnabled history true))

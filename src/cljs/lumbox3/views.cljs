@@ -5,6 +5,7 @@
             cljsjs.moment
             [cljs.reader :as reader]
             [lumbox3.events :as events]
+            [lumbox3.routes :as routes]
             [lumbox3.validation :as v]))
 
 (def antd js/antd)
@@ -119,12 +120,17 @@
   [:> antd.Row {:type :flex :justify :center}
    [:h1 "About"]])
 
+(defn error-view []
+  [:div
+   [:> antd.Alert {:type :error :message "Error" :description "Error description." :show-icon true}]])
+
 (def main-views
   {:home     home-view
    :about    about-view
    :register register-view
    :login    login-view
-   :logout   logout-view})
+   :logout   logout-view
+   :error error-view})
 
 (defn main-view []
   (let [k @(rf/subscribe [:route-name])]
@@ -136,15 +142,15 @@
      [:> antd.Menu {:theme :dark :mode :horizontal :selectable false
                     :style {:line-height "64px"}}
       [:> antd.Menu.Item
-       [:a {:href "#/"}] "Lumbox 3"]
+       [:a {:href (routes/href :home)}] "Lumbox 3"]
       [:> antd.Menu.Item
-       [:a {:href "#/about"}] "About"]
+       [:a {:href (routes/href :about)}] "About"]
       [:> antd.Menu.SubMenu {:title "Admin"}
        [:> antd.Menu.Item "Users"]
        [:> antd.Menu.Item "Groups"]]
       ; float right appears in opposite order ie. Login Register
       (when-not identity [:> antd.Menu.Item {:style {:float :right}}
-                          [:a {:href "#/register"} "Register"]])
+                          [:a {:href (routes/href :register)} "Register"]])
       (if identity
         [:> antd.Dropdown {:overlay (r/as-element [:> antd.Menu
                                                    [:> antd.Menu.Item {:key :logout}
@@ -153,7 +159,7 @@
         #_[:> antd.Menu.Item {:style {:float :right}}
          [:a {:on-click #(rf/dispatch [:logout :logout])} "Logout"]]
         [:> antd.Menu.Item {:style {:float :right}}
-         [:a {:href "#/login"} "Login"]])]]))
+         [:a {:href (routes/href :login)} "Login"]])]]))
 
 (defn footer []
   [:> antd.Layout.Footer {:style {:text-align :center}} "Footer"])
