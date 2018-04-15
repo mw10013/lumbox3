@@ -126,7 +126,8 @@
 (rf/reg-event-fx
   :logout
   (fn [{db :db} [_ cache-key input]]
-    {:http-xhrio {:method          :post
+    {:db (dissoc db :identity)
+     :http-xhrio {:method          :post
                   :uri             "/api"
                   :params          {:query "mutation { logout { user { email } } }"}
                   :format          (ajax/transit-request-format)
@@ -140,6 +141,6 @@
     {:db (-> db
              (assoc :status e)
              (assoc :result result)
-             (dissoc :identity)
+             #_(dissoc :identity)
              (update :cache dissoc cache-key))
-     :navigate :logout}))
+     #_:navigate #_:logout}))

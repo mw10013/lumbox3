@@ -13,7 +13,7 @@
      ["about" :about]
      ["register" :register]
      ["login" :login]
-     ["logout" :logout]
+     ["logout" {:name :logout :dispatch-event [:logout]}]
      ["error" :error]]))
 
 ;; TODO: routes: path: why does match-by-name! not throw exception
@@ -38,7 +38,10 @@
   (let [uri (goog.Uri. path-with-query-string)]
     (console.log "dispatch-path:" path-with-query-string (.getPath uri) (.getQuery uri))
     (if-let [match (r/match-by-path router (.getPath uri))]
-      (rf/dispatch [:set-route match])
+      (do
+        (rf/dispatch [:set-route match])
+        (when-let [event (get-in match [:data :dispatch-event])]
+          (rf/dispatch event)))
       (rf/dispatch [:set-route {:data {:name :path-not-found ::comment "Synthetic route"} :path (.getPath uri)}]))))
 
 ;; https://lispcast.com/mastering-client-side-routing-with-secretary-and-goog-history/
@@ -66,9 +69,6 @@
            #_(.setEnabled true)))
 
 ;; https://google.github.io/closure-library/api/goog.History.html
-#_(defn navigate [token]
-  (.setToken history token))
-
 (defn navigate [route-name]
   (.setToken history (path route-name)))
 
