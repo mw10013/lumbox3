@@ -94,7 +94,7 @@
              (assoc :status e)
              (assoc :result result)
              (update :cache dissoc cache-key))
-     :navigate "/login"}))
+     :navigate :login}))
 
 (rf/reg-event-fx
   :login
@@ -118,7 +118,7 @@
              (assoc :identity (->> result :data :login :user (csk-extras/transform-keys csk/->kebab-case)
                                    #_(update :roles #(->> % (map gql-enum-to-clj) set))))
              (update :cache dissoc cache-key))
-     :navigate "/"}))
+     :navigate :home}))
 
 (rf/reg-event-fx
   :logout
@@ -139,4 +139,4 @@
              (assoc :result result)
              (dissoc :identity)
              (update :cache dissoc cache-key))
-     :navigate "/logout"}))
+     :navigate :logout}))

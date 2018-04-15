@@ -17,9 +17,12 @@
      ["error" :error]]))
 
 ;; TODO: routes: path: why does match-by-name! not throw exception
+;; TODO: routes: path: handle query params
 (defn path
-  [route-name & path-params]
-  (:path (apply r/match-by-name! router route-name path-params)))
+  ([route-name]
+    (:path (r/match-by-name! router route-name)))
+  ([route-name path-params]
+    (:path (r/match-by-name! router route-name path-params))))
 
 (defn href
   "Appends # to path for href in link."
@@ -54,6 +57,7 @@
     (.setToken (.-target e) "/")
     (dispatch-path (.-token e))))
 
+;; TODO: switch to html5 history without token
 (defonce history
          (doto (History.)
            (goog.events/listen HistoryEventType/NAVIGATE
@@ -62,8 +66,11 @@
            #_(.setEnabled true)))
 
 ;; https://google.github.io/closure-library/api/goog.History.html
-(defn navigate [token]
+#_(defn navigate [token]
   (.setToken history token))
+
+(defn navigate [route-name]
+  (.setToken history (path route-name)))
 
 (defn enable-history!
   "Enable goog history.
