@@ -158,10 +158,14 @@
       (when-not identity [:> antd.Menu.Item {:style {:float :right}}
                           [:a {:href (routes/href :register)} "Register"]])
       (if identity
-        [:> antd.Dropdown {:overlay (r/as-element [:> antd.Menu
-                                                   [:> antd.Menu.Item {:key :logout}
-                                                    [:> antd.Icon {:type :logout} "Logout"]]])}
-         [:span (:email identity)]]
+        [:> antd.Menu.Item {:style {:float :right}}
+         [:> antd.Dropdown {:overlay (r/as-element [:> antd.Menu {:mode :inline :theme :dark}
+                                                    [:> antd.Menu.Item {:key :logout}
+                                                     #_[:> antd.Icon {:type :logout}]
+                                                     [:a {:href (routes/href :logout)} "Logout"]
+                                                     #_[:span [:a {:href (routes/href :logout)} "Logout"]]
+                                                     ]])}
+          [:span (:email identity)]]]
         #_[:> antd.Menu.Item {:style {:float :right}}
            [:a {:on-click #(rf/dispatch [:logout :logout])} "Logout"]]
         [:> antd.Menu.Item {:style {:float :right}}
