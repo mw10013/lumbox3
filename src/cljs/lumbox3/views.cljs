@@ -124,13 +124,18 @@
   [:div
    [:> antd.Alert {:type :error :message "Error" :description "Error description." :show-icon true}]])
 
+(defn path-not-found-view []
+  [:div
+   [:> antd.Alert {:type :error :message "Page not found." :description "Invalid path." :show-icon true}]])
+
 (def main-views
   {:home     home-view
    :about    about-view
    :register register-view
    :login    login-view
    :logout   logout-view
-   :error error-view})
+   :error error-view
+   :path-not-found path-not-found-view})
 
 (defn main-view []
   (let [k @(rf/subscribe [:route-name])]

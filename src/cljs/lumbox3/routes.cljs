@@ -26,15 +26,17 @@
   [route-name & path-params]
   (str "#"(apply path route-name path-params)))
 
-;; TODO: handle 404
 ;; TODO: handle query params
+;; https://google.github.io/closure-library/api/goog.Uri.html
+;; https://google.github.io/closure-library/api/goog.Uri.QueryData.html
+;; https://github.com/juxt/bidi/issues/51
 (defn dispatch-path
   [path-with-query-string]
   (let [uri (goog.Uri. path-with-query-string)]
     (console.log "dispatch-path:" path-with-query-string (.getPath uri) (.getQuery uri))
     (if-let [match (r/match-by-path router (.getPath uri))]
       (rf/dispatch [:set-route match])
-      (rf/dispatch [:set-route nil]))))
+      (rf/dispatch [:set-route {:data {:name :path-not-found ::comment "Synthetic route"} :path (.getPath uri)}]))))
 
 ;; https://lispcast.com/mastering-client-side-routing-with-secretary-and-goog-history/
 (defn history-did-navigate [e]
