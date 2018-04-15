@@ -20,6 +20,9 @@
   :<- [:route]
   (fn [route query-v] (get-in route [:data :name])))
 
+(rf/reg-event-db :toggle-sider (fn [db] (update db :sider-collapsed not)))
+(rf/reg-sub :sider-collapsed (fn [db] (:sider-collapsed db)))
+
 (rf/reg-sub :identity (fn [db _] (:identity db)))
 
 (rf/reg-sub :status (fn [db _] (:status db)))

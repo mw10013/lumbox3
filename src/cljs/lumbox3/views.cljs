@@ -129,12 +129,12 @@
    [:> antd.Alert {:type :error :message "Page not found." :description "Invalid path." :show-icon true}]])
 
 (def main-views
-  {:home     home-view
-   :about    about-view
-   :register register-view
-   :login    login-view
-   :logout   logout-view
-   :error error-view
+  {:home           home-view
+   :about          about-view
+   :register       register-view
+   :login          login-view
+   :logout         logout-view
+   :error          error-view
    :path-not-found path-not-found-view})
 
 (defn main-view []
@@ -146,13 +146,14 @@
     [:> antd.Layout.Header
      [:> antd.Menu {:theme :dark :mode :horizontal :selectable false
                     :style {:line-height "64px"}}
+
       [:> antd.Menu.Item
        [:a {:href (routes/href :home)}] "Lumbox 3"]
       [:> antd.Menu.Item
-       [:a {:href (routes/href :about)}] "About"]
-      [:> antd.Menu.SubMenu {:title "Admin"}
-       [:> antd.Menu.Item "Users"]
-       [:> antd.Menu.Item "Groups"]]
+       [:> antd.Icon {:type     (if @(rf/subscribe [:sider-collapsed]) :menu-unfold :menu-fold)
+                      #_:style    #_{:color "#1890ff"}
+                      :on-click #(rf/dispatch [:toggle-sider])}]]
+
       ; float right appears in opposite order ie. Login Register
       (when-not identity [:> antd.Menu.Item {:style {:float :right}}
                           [:a {:href (routes/href :register)} "Register"]])
@@ -162,17 +163,31 @@
                                                     [:> antd.Icon {:type :logout} "Logout"]]])}
          [:span (:email identity)]]
         #_[:> antd.Menu.Item {:style {:float :right}}
-         [:a {:on-click #(rf/dispatch [:logout :logout])} "Logout"]]
+           [:a {:on-click #(rf/dispatch [:logout :logout])} "Logout"]]
         [:> antd.Menu.Item {:style {:float :right}}
          [:a {:href (routes/href :login)} "Login"]])]]))
+
+;; for responsive sider use {:breakpoint :lg :collapsed-width 0}
+(defn sider []
+  [:> antd.Layout.Sider {:trigger   nil :collapsible true :collapsed-width 0
+                         :collapsed @(rf/subscribe [:sider-collapsed])}
+   [:> antd.Menu {:theme :dark :mode :inline :selectable false}
+    #_[:> antd.Menu.Item
+     [:a {:href (routes/href :home)}] "Lumbox 3"]
+    [:> antd.Menu.Item
+     [:a {:href (routes/href :about)}] "About"]
+    [:> antd.Menu.SubMenu {:title "Admin"}
+     [:> antd.Menu.Item "Users"]
+     [:> antd.Menu.Item "Groups"]]]])
 
 (defn footer []
   [:> antd.Layout.Footer {:style {:text-align :center}} "Footer"])
 
 (defn root-view []
-  (let [identity @(rf/subscribe [:identity])]
-    [:> antd.Layout
-     [header]
-     [:> antd.Layout.Content {:style {:margin 0 :padding "2em" :border "0px solid black"}}
-      [main-view]]
-     [footer]]))
+  [:> antd.Layout
+   [header]
+   [:> antd.Layout
+    [sider]
+    [:> antd.Layout.Content {:style {:margin 0 :padding "2em" :border "0px solid black"}}
+     [main-view]
+     [footer]]]])
