@@ -11,6 +11,10 @@
     ["/"
      ["" :home]
      ["about" :about]
+     ["admin"
+      ["" :admin-dashboard]
+      ["users" :admin-users]
+      ["groups" :admin-groups]]
      ["register" :register]
      ["login" :login]
      ["logout" {:name :logout :dispatch-event [:logout]}]

@@ -124,18 +124,40 @@
   [:div
    [:> antd.Alert {:type :error :message "Error" :description "Error description." :show-icon true}]])
 
+(defn admin-dashboard []
+  (let [col [:> antd.Col {:lg 6 :md 12}]]
+    [:div
+     [:> antd.Row {:gutter 24}
+      (for [[title text] [["Users" "Number of user: 7"]
+                          ["Groups" "Number of groups: 5"]
+                          ["Members" "Number of members: 3"]
+                          ["Locked" "Number locked: 0"]]]
+        (conj col [:> antd.Card {:title title}
+                   [:p text]]))
+      #_(conj col [:> antd.Card {:title "Users"}
+                 [:p "Number of users is " 7]])
+      #_(conj col [:> antd.Card {:title "Groups"}
+                 [:p "Number of groups is " 5]])]]))
+
+(defn placeholder-view [name]
+  [:div
+   [:h1 name]])
+
 (defn path-not-found-view []
   [:div
    [:> antd.Alert {:type :error :message "Page not found." :description "Invalid path." :show-icon true}]])
 
 (def main-views
-  {:home           home-view
-   :about          about-view
-   :register       register-view
-   :login          login-view
-   :logout         logout-view
-   :error          error-view
-   :path-not-found path-not-found-view})
+  {:home            home-view
+   :about           about-view
+   :admin-dashboard admin-dashboard
+   :admin-users     (partial placeholder-view :admin-users)
+   :admin-groups    (partial placeholder-view :admin-groups)
+   :register        register-view
+   :login           login-view
+   :logout          logout-view
+   :error           error-view
+   :path-not-found  path-not-found-view})
 
 (defn main-view []
   (let [k @(rf/subscribe [:route-name])]
@@ -165,7 +187,8 @@
                                                      [:a {:href (routes/href :logout)} "Logout"]
                                                      #_[:span [:a {:href (routes/href :logout)} "Logout"]]
                                                      ]])}
-          [:span (:email identity)]]]
+          [:span (:email identity)
+           [:> antd.Icon {:type :down}]]]]
         #_[:> antd.Menu.Item {:style {:float :right}}
            [:a {:on-click #(rf/dispatch [:logout :logout])} "Logout"]]
         [:> antd.Menu.Item {:style {:float :right}}
@@ -177,12 +200,16 @@
                          :collapsed @(rf/subscribe [:sider-collapsed])}
    [:> antd.Menu {:theme :dark :mode :inline :selectable false}
     #_[:> antd.Menu.Item
-     [:a {:href (routes/href :home)}] "Lumbox 3"]
+       [:a {:href (routes/href :home)}] "Lumbox 3"]
     [:> antd.Menu.Item
      [:a {:href (routes/href :about)}] "About"]
     [:> antd.Menu.SubMenu {:title "Admin"}
-     [:> antd.Menu.Item "Users"]
-     [:> antd.Menu.Item "Groups"]]]])
+     [:> antd.Menu.Item
+      [:a {:href (routes/href :admin-dashboard)} "Dashboard"]]
+     [:> antd.Menu.Item
+      [:a {:href (routes/href :admin-users)} "Users"]]
+     [:> antd.Menu.Item
+      [:a {:href (routes/href :admin-groups)} "Groups"]]]]])
 
 (defn footer []
   [:> antd.Layout.Footer {:style {:text-align :center}} "Footer"])
