@@ -38,10 +38,12 @@
    The :data map in each map has keys for :breadcrumb-name
    and breaddrumb-href."
   [path]
+  ;; "/admin/users" => "" "admin" "users" => "/" "/admin" "/admin/users"
   (let [split (clojure.string/split path "/")
         paths (reduce (fn [coll x]
                         (conj coll (str (peek coll)
-                                        (when-not (-> coll peek (= "/")) "/") x)))
+                                        (when-not (= 1 (count coll)) "/")
+                                        x)))
                       [] split)]
     (keep (fn [path]
             (when-let [match (r/match-by-path router path)]
