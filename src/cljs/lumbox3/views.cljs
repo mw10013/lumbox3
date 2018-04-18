@@ -124,24 +124,40 @@
   [:div
    [:> antd.Alert {:type :error :message "Error" :description "Error description." :show-icon true}]])
 
+(defn breadcrumbs []
+  (let [path @(rf/subscribe [:route-path])
+        breadcrumbs (routes/breadcrumbs path)]
+    [:> antd.Breadcrumb
+     (map (fn [x]
+            [:> antd.Breadcrumb.Item {:key (:path x)}
+             [:a {:href (-> x :data :breadcrumb-href)} (-> x :data :breadcrumb-name)]])
+          breadcrumbs)]))
+
+;; TODO: admin-dashboard: add working key to seq.
 (defn admin-dashboard []
   (let [col [:> antd.Col {:lg 6 :md 12}]]
     [:div
+     [breadcrumbs]
      [:> antd.Row {:gutter 24}
       (for [[title text] [["Users" "Number of user: 7"]
                           ["Groups" "Number of groups: 5"]
                           ["Members" "Number of members: 3"]
                           ["Locked" "Number locked: 0"]]]
-        (conj col [:> antd.Card {:title title}
+        ^{:key title} (conj (assoc-in col [2 :key] title) [:> antd.Card {:title title}
                    [:p text]]))
       #_(conj col [:> antd.Card {:title "Users"}
                  [:p "Number of users is " 7]])
       #_(conj col [:> antd.Card {:title "Groups"}
                  [:p "Number of groups is " 5]])]]))
 
+(defn admin-users []
+  [:div
+   [breadcrumbs]])
+
 (defn placeholder-view [name]
   [:div
-   [:h1 name]])
+   [:h1 name]
+   [breadcrumbs]])
 
 (defn path-not-found-view []
   [:div

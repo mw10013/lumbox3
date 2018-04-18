@@ -9,12 +9,12 @@
 (def router
   (r/router
     ["/"
-     ["" :home]
+     ["" {:name :home :breadcrumb-name "Home"}]
      ["about" :about]
      ["admin"
-      ["" :admin-dashboard]
-      ["users" :admin-users]
-      ["groups" :admin-groups]]
+      ["" {:name :admin-dashboard :breadcrumb-name "Admin"}]
+      ["/users" {:name :admin-users :breadcrumb-name "Users"}]
+      ["/groups" {:name :admin-groups :breadcrumb-name "Groups"}]]
      ["register" :register]
      ["login" :login]
      ["logout" {:name :logout :dispatch-event [:logout]}]
@@ -32,6 +32,20 @@
   "Appends # to path for href in link."
   [route-name & path-params]
   (str "#"(apply path route-name path-params)))
+
+(defn breadcrumbs
+  "Return breadcrumbs for path as a vector of reitit matches.
+   The :data map in each map has keys for :breadcrumb-name
+   and breaddrumb-href."
+  [path]
+  (let [split (clojure.string/split path "/")
+        paths (reduce (fn [coll x]
+                        (conj coll (str (peek coll)
+                                        (when-not (-> coll peek (= "/")) "/") x)))
+                      [] split)]
+    (keep (fn [path]
+            (when-let [match (r/match-by-path router path)]
+              (assoc-in match [:data :breadcrumb-href] (str "#" path)))) paths)))
 
 ;; TODO: handle query params
 ;; https://google.github.io/closure-library/api/goog.Uri.html
