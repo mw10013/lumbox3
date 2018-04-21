@@ -1,32 +1,39 @@
 {:objects
  {:User                {:description "User"
-                        :fields      {:id    {:type (non-null ID)}
-                                      :email {:type        String
-                                              :description "Email of user."}}}
+                        :fields      {:id         {:type (non-null ID)}
+                                      :email      {:type        (non-null String)
+                                                   :description "Email of user."}
+                                      :locked_at  {:type        DateTimeUTC
+                                                   :description "Locked timestamp."}
+                                      :created_at {:type        (non-null DateTimeUTC)
+                                                   :description "Creation timestamp."}}}
   :RegisterUserPayload {:description "Register user payload."
-                        :fields      {:user {:type (non-null :User)}}}
+                        :fields      {:user {:type (non-null User)}}}
   :LoginPayload        {:description "Login payload."
-                        :fields      {:user {:type (non-null :User)}}}
+                        :fields      {:user {:type (non-null User)}}}
   :LogoutPayload       {:description "Logout payload."
-                        :fields      {:user {:type (non-null :User)}}}}
+                        :fields      {:user {:type (non-null User)}}}}
+ :scalars
+ {:DateTimeUTC {:parse     :date-time-utc-parser
+                :serialize :date-time-utc-serializer}}
  :input-objects
  {:RegisterUserInput {:fields {:email    {:type (non-null String)}
                                :password {:type (non-null String)}}}
   :LoginInput        {:fields {:email    {:type (non-null String)}
                                :password {:type (non-null String)}}}}
  :queries
- {:users {:type        (list :User)
+ {:users {:type        (list User)
           :description "Get all users."
           :resolve     :query/users}}
  :mutations
- {:register_user {:type        :RegisterUserPayload
+ {:register_user {:type        RegisterUserPayload
                   :description "Register user."
-                  :args        {:input {:type (non-null :RegisterUserInput)}}
+                  :args        {:input {:type (non-null RegisterUserInput)}}
                   :resolve     :mutation/register-user}
-  :login         {:type        :LoginPayload
+  :login         {:type        LoginPayload
                   :description "Login."
-                  :args        {:input {:type (non-null :LoginInput)}}
+                  :args        {:input {:type (non-null LoginInput)}}
                   :resolve     :mutation/login}
-  :logout        {:type        :LogoutPayload
+  :logout        {:type        LogoutPayload
                   :description "Logout."
                   :resolve     :mutation/logout}}}

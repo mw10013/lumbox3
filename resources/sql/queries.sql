@@ -11,7 +11,7 @@ where user_id = :user_id;
 
 -- :name update-user! :! :n
 -- :doc Updates an existing user record.
-updates users
+update users
 set user_email = :user_email,
     encrypted_password = :encrypted_password
 where user_id = :user_id;    

@@ -13,7 +13,8 @@
             [lumbox3.validation :as v]
             [buddy.hashers :as hashers]
             [cognitect.anomalies :as anom]
-            [clojure.tools.logging :as log]))
+            [clojure.tools.logging :as log]
+            [clj-time.coerce :as tc]))
 
 (def ^:private snake-case-keys (partial csk-extras/transform-keys csk/->snake_case))
 
@@ -86,6 +87,9 @@
                               :mutation/register-user register-user
                               :mutation/login login
                               :mutation/logout logout})
+                           (lacinia-util/attach-scalar-transformers
+                             {:date-time-utc-parser     (schema/as-conformer tc/from-string)
+                              :date-time-utc-serializer (schema/as-conformer tc/to-string)})
                            schema/compile))
 
 (defn graphql
@@ -117,7 +121,7 @@
   (db/user-by-email {:user-email "bee@sting.com"})
   (db/user-by-email {:user-email "bad email"})
   (users nil nil nil)
-  (l/execute schema "{ users { id email } }" nil nil)
+  (l/execute schema "{ users { id email locked_at created_at } }" nil nil)
 
   (register-user nil {:input {:email "bee@sting.com" :password "letmein"}} nil)
   (l/execute schema

@@ -10,6 +10,8 @@ create table users(
   -- restrict unencrypted password length to 50.
   -- buddy needs 98 for encrypting passwords.
    encrypted_password varchar(98) not null,
+   note varchar(10000),
+   locked_at timestamptz,
    created_at timestamptz not null default current_timestamp
  );
 
