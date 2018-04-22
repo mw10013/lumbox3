@@ -1,4 +1,4 @@
--- :name create-user! :<!
+-- :name insert-user! :<!
 -- :doc Creates a new user record.
 insert into users(user_email, encrypted_password)
 values(:user_email, :encrypted_password)
@@ -14,7 +14,17 @@ where user_id = :user_id;
 update users
 set user_email = :user_email,
     encrypted_password = :encrypted_password
-where user_id = :user_id;    
+where user_id = :user_id;
+
+-- :name add-user-to-group! :! :n
+-- :doc Add user to group
+insert into user_groups(user_id, group_id)
+values(:user_id, :group_id);
+
+-- :name remove-user-from-group! :! :n
+-- :doc Remove user from group
+delete from user_groups
+where user_id = :user_id and group_id = :group_id;
 
 -- :name users :? :*
 -- :doc Returns all users ordered by email.

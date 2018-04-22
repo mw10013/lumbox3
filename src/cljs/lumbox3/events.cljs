@@ -143,9 +143,30 @@
 (rf/reg-event-fx
   :logout-succeeded
   (fn [{db :db} [e cache-key result]]
-    {:db (-> db
+    {:db (-> db                                             ; :logout event dissoc's identity
              (assoc :status e)
              (assoc :result result)
-             #_(dissoc :identity)
              (update :cache dissoc cache-key))
      #_:navigate #_:logout}))
+
+(rf/reg-event-fx
+  :get-users
+  (fn [{db :db}]
+    (println ":get-users")
+    {:db         (-> db
+                     (update :admin dissoc :users))
+     :http-xhrio {:method :post
+                  :uri    "/api"
+                  :params {:query "{ users { id email locked_at created_at } }"}
+                  :format          (ajax/transit-request-format)
+                  :response-format (ajax/transit-response-format)
+                  :on-success      [:get-users-succeeded]
+                  :on-failure      [:http-xhrio-graphql-failed :admin]}}))
+
+(rf/reg-event-fx
+  :get-users-succeeded
+  (fn [{db :db} [e result]]
+    {:db (-> db
+             (assoc-in [:admin :users] result)
+             (assoc :status e)
+             (assoc :result result))}))

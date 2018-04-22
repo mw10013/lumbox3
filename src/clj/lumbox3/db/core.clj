@@ -121,11 +121,22 @@
 (defmethod hugsql.core/hugsql-result-fn :default [sym]
   'lumbox3.db.core/result-many-snake->kebab)
 
+(defn create-user!
+  "Create user and add to users group.
+   Takes a map containing :user-email and :encrypted-password."
+  [m]
+  (conman/with-transaction [*db*]
+                           (let [user (first (insert-user! m))]
+                             (add-user-to-group! {:user-id (:user-id user)
+                                                 :group-id "users"})
+                             user)))
+
 (comment
   (users)
   (user-by-email {:user-email "bar@bar.com"})
-  (create-user! {:user-email "bar@bar.com" :encrypted-password "letmein"})
+  (insert-user! {:user-email "bar4@bar.com" :encrypted-password "letmein"})
   (delete-user! {:user-id 3})
+  (create-user! {:user-email "bar3@bar.com" :encrypted-password "letmein"})
 
   (hugsql.core/def-db-fns "sql/queries.sql")
   (hugsql.core/def-sqlvec-fns "sql/queries.sql")

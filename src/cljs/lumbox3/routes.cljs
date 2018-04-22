@@ -13,11 +13,11 @@
      ["about" :about]
      ["admin"
       ["" {:name :admin-dashboard :breadcrumb-name "Admin"}]
-      ["/users" {:name :admin-users :breadcrumb-name "Users"}]
+      ["/users" {:name :admin-users :breadcrumb-name "Users" :start [:get-users]}]
       ["/groups" {:name :admin-groups :breadcrumb-name "Groups"}]]
      ["register" :register]
      ["login" :login]
-     ["logout" {:name :logout :dispatch-event [:logout]}]
+     ["logout" {:name :logout :start [:logout]}]
      ["error" :error]]))
 
 ;; TODO: routes: path: why does match-by-name! not throw exception
@@ -60,7 +60,7 @@
     (if-let [match (r/match-by-path router (.getPath uri))]
       (do
         (rf/dispatch [:set-route match])
-        (when-let [event (get-in match [:data :dispatch-event])]
+        (when-let [event (get-in match [:data :start])]
           (rf/dispatch event)))
       (rf/dispatch [:set-route {:data {:name :path-not-found ::comment "Synthetic route"} :path (.getPath uri)}]))))
 

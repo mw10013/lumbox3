@@ -26,8 +26,8 @@
       (dissoc :user-id :user-email)
       snake-case-keys))
 
+;; TODO: services: users: check perms.
 (defn users
-  "TODO: check perms."
   [_ _ _]
   (map marshal-user (db/users)))
 
@@ -41,7 +41,6 @@
         (let [encrypted-password (hashers/encrypt password)]
           (->> {:user-email email :encrypted-password encrypted-password}
                db/create-user!
-               first
                marshal-user
                (hash-map :user)))
         (catch Throwable t
@@ -78,6 +77,7 @@
       {:user (-> {:user-email email} db/user-by-email marshal-user)}
       (resolve-as nil {:message "Not logged in." :anomaly {:category :fault}}))))
 
+;; TODO: schema: error handling for scalar transformers
 (mount/defstate schema
                 :start (-> "resources/graphql/schema.edn"
                            slurp

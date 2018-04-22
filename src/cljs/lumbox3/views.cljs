@@ -152,7 +152,8 @@
 
 (defn admin-users []
   [:div
-   [breadcrumbs]])
+   [breadcrumbs]
+   [debug-cache :admin]])
 
 (defn placeholder-view [name]
   [:div
@@ -167,7 +168,7 @@
   {:home            home-view
    :about           about-view
    :admin-dashboard admin-dashboard
-   :admin-users     (partial placeholder-view :admin-users)
+   :admin-users     admin-users
    :admin-groups    (partial placeholder-view :admin-groups)
    :register        register-view
    :login           login-view

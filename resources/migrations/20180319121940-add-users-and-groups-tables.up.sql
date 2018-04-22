@@ -24,7 +24,7 @@ create table groups(
 );
 
 insert into groups(group_id)
-values('members'), ('customers'), ('biz'), ('support'), ('devops'), ('admins');
+values('users'), ('members'), ('customers'), ('biz'), ('support'), ('devops'), ('admins');
 
 create table user_groups(
   user_id integer references users(user_id),
