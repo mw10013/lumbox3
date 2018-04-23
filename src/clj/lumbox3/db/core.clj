@@ -58,6 +58,22 @@
 #_(conman/bind-connection *db* "sql/queries.sql")
 (->> (conman/bind-connection *db* "sql/queries.sql") :fns keys (map name) (wrap-sql-fns *ns*))
 
+(defn unmarshal-user [m]
+  (println "unmarshal-user:" m)
+  (update m :groups #(reduce (fn [ret x] (conj ret (keyword x))) #{} %)))
+
+(defn my-create-user! [& args]
+  (when-let [user (apply create-user! args)]
+    (unmarshal-user user)))
+
+;; TODO: revisit lumbox3.db.core unmarshalling
+(alter-var-root
+  #'lumbox3.db.core/create-user!
+  (fn [f]
+    (fn with-unmarshal [& args]
+      (when-let [user (apply f args)]
+        (unmarshal-user user)))))
+
 (extend-protocol jdbc/IResultSetReadColumn
   Array
   (result-set-read-column [v _ _] (vec (.getArray v)))
@@ -121,7 +137,7 @@
 (defmethod hugsql.core/hugsql-result-fn :default [sym]
   'lumbox3.db.core/result-many-snake->kebab)
 
-(defn create-user!
+#_(defn create-user!
   "Create user and add to users group.
    Takes a map containing :user-email and :encrypted-password."
   [m]
@@ -136,7 +152,7 @@
   (user-by-email {:user-email "bar@bar.com"})
   (insert-user! {:user-email "bar4@bar.com" :encrypted-password "letmein"})
   (delete-user! {:user-id 3})
-  (create-user! {:user-email "bar3@bar.com" :encrypted-password "letmein"})
+  (create-user! {:user-email "bar48@bar.com" :encrypted-password "letmein"})
 
   (hugsql.core/def-db-fns "sql/queries.sql")
   (hugsql.core/def-sqlvec-fns "sql/queries.sql")

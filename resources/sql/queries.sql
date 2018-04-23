@@ -1,5 +1,20 @@
+-- :name create-user! :? :1
+-- :doc Insert a new user record and add to users group.
+with new_user as(
+  insert into users(user_email, encrypted_password)
+  values(:user_email, :encrypted_password)
+  returning *
+), group_assignment as(
+  insert into user_groups(user_id, group_id)
+    select user_id, 'users' from new_user
+  returning *
+)
+select new_user.*, Array[group_assignment.group_id] as groups
+from new_user
+  join group_assignment using(user_id);
+
 -- :name insert-user! :<!
--- :doc Creates a new user record.
+-- :doc Insert a new user record.
 insert into users(user_email, encrypted_password)
 values(:user_email, :encrypted_password)
 returning *;
