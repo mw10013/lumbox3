@@ -43,14 +43,22 @@ where user_id = :user_id and group_id = :group_id;
 
 -- :name users :? :*
 -- :doc Returns all users ordered by email.
-select *
-from users
+with g as(
+  select user_id, array_agg(group_id) as groups from user_groups group by user_id
+)
+select u.*, g.groups
+from users u
+  join g using(user_id)
 order by user_email;
 
 -- :name user-by-email :? :1
 -- :doc Retrieves user by email.
-select *
-from users
+with g as(
+    select user_id, array_agg(group_id) as groups from user_groups group by user_id
+)
+select u.*, g.groups
+from users u
+  join g using(user_id)
 where user_email = :user_email;
 
 /*

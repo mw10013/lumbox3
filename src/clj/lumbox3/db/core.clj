@@ -66,13 +66,22 @@
   (when-let [user (apply create-user! args)]
     (unmarshal-user user)))
 
+(defn wrap-unmarshal-one-user
+  [f]
+  (fn with-unmarshal [& args]
+    (when-let [user (apply f args)]
+      (unmarshal-user user))))
+
+(defn wrap-unmarshal-many-users
+  [f]
+  (fn with-unmarshal [& args]
+    (when-let [users (seq (apply f args))]
+      (map unmarshal-user users))))
+
 ;; TODO: revisit lumbox3.db.core unmarshalling
-(alter-var-root
-  #'lumbox3.db.core/create-user!
-  (fn [f]
-    (fn with-unmarshal [& args]
-      (when-let [user (apply f args)]
-        (unmarshal-user user)))))
+(alter-var-root #'lumbox3.db.core/create-user! wrap-unmarshal-one-user)
+(alter-var-root #'lumbox3.db.core/users wrap-unmarshal-many-users)
+(alter-var-root #'lumbox3.db.core/user-by-email wrap-unmarshal-one-user)
 
 (extend-protocol jdbc/IResultSetReadColumn
   Array
@@ -149,10 +158,10 @@
 
 (comment
   (users)
-  (user-by-email {:user-email "bar@bar.com"})
+  (user-by-email {:user-email "foo@foo.com"})
   (insert-user! {:user-email "bar4@bar.com" :encrypted-password "letmein"})
   (delete-user! {:user-id 3})
-  (create-user! {:user-email "bar48@bar.com" :encrypted-password "letmein"})
+  (create-user! {:user-email "bar@bar.com" :encrypted-password "letmein"})
 
   (hugsql.core/def-db-fns "sql/queries.sql")
   (hugsql.core/def-sqlvec-fns "sql/queries.sql")
