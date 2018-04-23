@@ -1,4 +1,13 @@
-{:objects
+{:enums
+ {:Group {:description "Enumeration of groups."
+          :values [{:enum-value :users :description "Every user is a member of the users group."}
+                   {:enum-value :members :description "Can use the features of the web app."}
+                   {:enum-value :customers :description "Pays money to use features of the web app."}
+                   {:enum-value :biz}
+                   {:enum-value :support}
+                   {:enum-value :devops}
+                   {:enum-value :admins}]}}
+ :objects
  {:User                {:description "User"
                         :fields      {:id         {:type (non-null ID)}
                                       :email      {:type        (non-null String)
@@ -6,7 +15,9 @@
                                       :locked_at  {:type        DateTimeUTC
                                                    :description "Locked timestamp."}
                                       :created_at {:type        (non-null DateTimeUTC)
-                                                   :description "Creation timestamp."}}}
+                                                   :description "Creation timestamp."}
+                                      :groups {:type (list Group)
+                                               :description "Groups the user belongs to."}}}
   :RegisterUserPayload {:description "Register user payload."
                         :fields      {:user {:type (non-null User)}}}
   :LoginPayload        {:description "Login payload."

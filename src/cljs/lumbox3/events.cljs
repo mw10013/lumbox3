@@ -146,8 +146,7 @@
     {:db (-> db                                             ; :logout event dissoc's identity
              (assoc :status e)
              (assoc :result result)
-             (update :cache dissoc cache-key))
-     #_:navigate #_:logout}))
+             (update :cache dissoc cache-key))}))
 
 (rf/reg-event-fx
   :get-users
