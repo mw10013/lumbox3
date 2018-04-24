@@ -104,13 +104,19 @@
              (update :cache dissoc cache-key))
      :navigate :login}))
 
+(defn unmarshal-user
+  [m]
+  (as-> m $
+       (csk-extras/transform-keys csk/->kebab-case $)
+       (update $ :groups set)))
+
 (rf/reg-event-fx
   :login
   (fn [{db :db} [_ cache-key input]]
     {:http-xhrio {:method          :post
                   :uri             "/api"
                   :params          {:query     "mutation Login($login_input: LoginInput!) {
-                  login(input: $login_input) { user { email } } }"
+                  login(input: $login_input) { user { id email groups } } }"
                                     :variables {:login_input (csk-extras/transform-keys csk/->snake_case input)}}
                   :format          (ajax/transit-request-format)
                   :response-format (ajax/transit-response-format)
@@ -123,7 +129,7 @@
     {:db (-> db
              (assoc :status e)
              (assoc :result result)
-             (assoc :identity (->> result :data :login :user (csk-extras/transform-keys csk/->kebab-case)
+             (assoc :identity (->> result :data :login :user unmarshal-user #_(csk-extras/transform-keys csk/->kebab-case)
                                    #_(update :roles #(->> % (map gql-enum-to-clj) set))))
              (update :cache dissoc cache-key))
      :navigate :home}))
@@ -156,7 +162,7 @@
                      (update :admin dissoc :users))
      :http-xhrio {:method :post
                   :uri    "/api"
-                  :params {:query "{ users { id email locked_at created_at } }"}
+                  :params {:query "{ users { id email locked_at created_at groups } }"}
                   :format          (ajax/transit-request-format)
                   :response-format (ajax/transit-response-format)
                   :on-success      [:get-users-succeeded]
