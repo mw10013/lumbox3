@@ -1,8 +1,8 @@
 -- :name create-user! :? :1
 -- :doc Insert a new user record and add to users group.
 with new_user as(
-  insert into users(user_email, encrypted_password)
-  values(:user_email, :encrypted_password)
+  insert into users(email, encrypted_password)
+  values(:email, :encrypted_password)
   returning *
 ), group_assignment as(
   insert into user_groups(user_id, group_id)
@@ -15,8 +15,8 @@ from new_user
 
 -- :name insert-user! :<!
 -- :doc Insert a new user record.
-insert into users(user_email, encrypted_password)
-values(:user_email, :encrypted_password)
+insert into users(email, encrypted_password)
+values(:email, :encrypted_password)
 returning *;
 
 -- :name delete-user! :! :n
@@ -27,7 +27,7 @@ where user_id = :user_id;
 -- :name update-user! :! :n
 -- :doc Updates an existing user record.
 update users
-set user_email = :user_email,
+set email = :email,
     encrypted_password = :encrypted_password
 where user_id = :user_id;
 
@@ -49,7 +49,7 @@ with g as(
 select u.*, g.groups
 from users u
   join g using(user_id)
-order by user_email;
+order by email;
 
 -- :name user-by-email :? :1
 -- :doc Retrieves user by email.
@@ -59,7 +59,7 @@ with g as(
 select u.*, g.groups
 from users u
   join g using(user_id)
-where user_email = :user_email;
+where email = :email;
 
 /*
 -- :name create-user! :! :n

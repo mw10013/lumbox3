@@ -20,10 +20,10 @@
 
 (defn ^:private marshal-user
   "Transform user map m for graphql."
-  [{:keys [user-id user-email] :as m}]
+  [{:keys [user-id] :as m}]
   (-> m
-      (assoc :id (str user-id) :email user-email)
-      (dissoc :user-id :user-email)
+      (assoc :id (str user-id))
+      (dissoc :user-id)
       snake-case-keys))
 
 ;; TODO: services: users: check perms.
@@ -39,13 +39,13 @@
       (resolve-as nil {:message "Invalid input." :anomaly {:category :incorrect} :input-errors errors})
       (try
         (let [encrypted-password (hashers/encrypt password)]
-          (->> {:user-email email :encrypted-password encrypted-password}
+          (->> {:email email :encrypted-password encrypted-password}
                db/create-user!
                marshal-user
                (hash-map :user)))
         (catch Throwable t
           (let [tm (Throwable->map t)
-                dupe? (-> tm :cause (.startsWith "ERROR: duplicate key value violates unique constraint \"users_user_email_key\""))]
+                dupe? (-> tm :cause (.startsWith "ERROR: duplicate key value violates unique constraint \"users_email_key\""))]
             (if dupe?
               (resolve-as nil {:message "Email already used." :anomaly {:category :conflict} :input-errors {:email "Email already used."}})
               (resolve-as nil {:message (:cause tm) :anomaly {:category :fault}}))))))))
@@ -54,15 +54,15 @@
   "Login by checking password.
    Successful login will create side effect to add an identity to the session containing :user/email."
   [context {:keys [input]} _]
-  (if (get-in context [:session :identity :user/email])
+  (if (get-in context [:session :identity])
     (resolve-as nil {:message "Already logged in." :anomaly {:category :fault}})
     (let [[errors {:keys [email password]}] (v/validate-login-input input)]
       (if errors
         (resolve-as nil {:message "Invalid input." :anomaly {:category :incorrect} :input-errors errors})
-        (if-let [user (db/user-by-email {:user-email email})]
+        (if-let [user (db/user-by-email {:email email})]
           (if (hashers/check password (:encrypted-password user))
             (let [session (or (-> context :side-effects deref :session) (:session context {}))
-                  session (assoc session :identity {:user/email email})]
+                  session (assoc session :identity user)]
               (swap! (:side-effects context) assoc :session session)
               {:user (marshal-user user)})
             (resolve-as nil {:message "Invalid login credentials" :anomaly {:category :forbidden}}))
@@ -71,10 +71,10 @@
 (defn logout
   "Logout. Always clears session as a side effect."
   [context _ _]
-  (let [email (get-in context [:session :identity :user/email])]
+  (let [email (get-in context [:session :identity :email])]
     (swap! (:side-effects context) assoc :session nil)      ; always clear session.
     (if email
-      {:user (-> {:user-email email} db/user-by-email marshal-user)}
+      {:user (-> {:email email} db/user-by-email marshal-user)}
       (resolve-as nil {:message "Not logged in." :anomaly {:category :fault}}))))
 
 ;; TODO: schema: error handling for scalar transformers
@@ -118,8 +118,8 @@
 (comment
   (mount.core/start #'lumbox3.routes.services/schema)
   (db/users)
-  (db/user-by-email {:user-email "bee@sting.com"})
-  (db/user-by-email {:user-email "bad email"})
+  (db/user-by-email {:email "bee@sting.com"})
+  (db/user-by-email {:email "bad email"})
   (users nil nil nil)
   (l/execute schema "{ users { id email locked_at created_at } }" nil nil)
 

@@ -2,7 +2,7 @@ create table users(
   user_id serial primary key,
   -- https://stackoverflow.com/questions/386294/what-is-the-maximum-length-of-a-valid-email-address
   -- user_id is email.
-  user_email varchar(254) unique not null,
+  email varchar(254) unique not null,
 
   -- https://www.mscharhag.com/software-development/bcrypt-maximum-password-length
   -- https://security.stackexchange.com/questions/39849/does-bcrypt-have-a-maximum-password-length

@@ -87,7 +87,7 @@
                                    (when-not input-errors
                                      (rf/dispatch [:login cache-key input]))))}
       (when error-message
-        [:p [:> antd.Alert {:type :error :message error-message}]])
+        [:> antd.Alert {:type :error :message error-message}])
       [:> antd.Form.Item (when-let [errors (:email input-errors)] {:validateStatus :error :hasFeedback true
                                                                    :help           errors})
        [:> antd.Input {:placeholder "E-mail address"
