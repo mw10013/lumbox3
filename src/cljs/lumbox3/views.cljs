@@ -153,6 +153,7 @@
 (defn admin-users []
   [:div
    [breadcrumbs]
+   (pr-str @(rf/subscribe [:users]))
    [debug-cache :admin]])
 
 (defn placeholder-view [name]

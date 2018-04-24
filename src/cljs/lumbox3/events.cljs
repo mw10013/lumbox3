@@ -107,8 +107,16 @@
 (defn unmarshal-user
   [m]
   (as-> m $
-       (csk-extras/transform-keys csk/->kebab-case $)
-       (update $ :groups set)))
+        (csk-extras/transform-keys csk/->kebab-case $)
+        (if-let [groups (:groups $)]
+          (update $ :groups set)
+          $)
+        (if-let [locked-at (:locked-at $)]
+          (assoc $ :locked-at (js/Date. locked-at))
+          $)
+        (if-let [created-at (:created-at $)]
+          (assoc $ :created-at (js/Date. created-at))
+          $)))
 
 (rf/reg-event-fx
   :login
@@ -129,8 +137,7 @@
     {:db (-> db
              (assoc :status e)
              (assoc :result result)
-             (assoc :identity (->> result :data :login :user unmarshal-user #_(csk-extras/transform-keys csk/->kebab-case)
-                                   #_(update :roles #(->> % (map gql-enum-to-clj) set))))
+             (assoc :identity (->> result :data :login :user unmarshal-user))
              (update :cache dissoc cache-key))
      :navigate :home}))
 
@@ -172,6 +179,13 @@
   :get-users-succeeded
   (fn [{db :db} [e result]]
     {:db (-> db
-             (assoc-in [:admin :users] result)
+             (assoc-in [:admin :users] (->> result :data :users (map unmarshal-user)))
              (assoc :status e)
              (assoc :result result))}))
+
+(rf/reg-sub :admin (fn [db _] (:admin db)))
+
+(rf/reg-sub
+  :users
+  (fn [_ _] (rf/subscribe [:admin]))
+  (fn [admin] (:users admin)))
