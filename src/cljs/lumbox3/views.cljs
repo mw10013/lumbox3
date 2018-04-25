@@ -153,12 +153,10 @@
 (def admin-users-columns
   [{:title     "ID"
     :dataIndex :id
-    :key       :id
-    :render    #(r/as-element [:span %])}
+    :key       :id}
    {:title     "Email"
     :dataIndex :email
-    :key       :email
-    :render    #(r/as-element [:span %])}
+    :key       :email}
    {:title     "Locked At"
     :dataIndex :locked-at
     :key       :locked-at
@@ -169,15 +167,15 @@
     :render    #(r/as-element [:span (.toDateString %)])}
    {:title     "Groups"
     :dataIndex :groups
-    :key       :groups
-    :render    #(r/as-element [:span %])}]
-  )
+    :key       :groups}])
 
 (defn admin-users []
   [:div
    [breadcrumbs]
    [:> antd.Table {:columns    admin-users-columns
-                   :dataSource (map #(assoc % :key (:id %)) @(rf/subscribe [:users]))}]
+                   :dataSource @(rf/subscribe [:users])
+                   :bordered   true :simple true
+                   :rowKey     #(aget % "id")}]
    (pr-str @(rf/subscribe [:users]))
    [debug-cache :admin]])
 
