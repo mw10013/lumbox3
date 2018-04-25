@@ -144,15 +144,40 @@
                           ["Members" "Number of members: 3"]
                           ["Locked" "Number locked: 0"]]]
         ^{:key title} (conj (assoc-in col [2 :key] title) [:> antd.Card {:title title}
-                   [:p text]]))
+                                                           [:p text]]))
       #_(conj col [:> antd.Card {:title "Users"}
-                 [:p "Number of users is " 7]])
+                   [:p "Number of users is " 7]])
       #_(conj col [:> antd.Card {:title "Groups"}
-                 [:p "Number of groups is " 5]])]]))
+                   [:p "Number of groups is " 5]])]]))
+
+(def admin-users-columns
+  [{:title     "ID"
+    :dataIndex :id
+    :key       :id
+    :render    #(r/as-element [:span %])}
+   {:title     "Email"
+    :dataIndex :email
+    :key       :email
+    :render    #(r/as-element [:span %])}
+   {:title     "Locked At"
+    :dataIndex :locked-at
+    :key       :locked-at
+    :render    #(r/as-element (when % [:span (.toDateString %)]))}
+   {:title     "Created At"
+    :dataIndex :created-at
+    :key       :created-at
+    :render    #(r/as-element [:span (.toDateString %)])}
+   {:title     "Groups"
+    :dataIndex :groups
+    :key       :groups
+    :render    #(r/as-element [:span %])}]
+  )
 
 (defn admin-users []
   [:div
    [breadcrumbs]
+   [:> antd.Table {:columns    admin-users-columns
+                   :dataSource (map #(assoc % :key (:id %)) @(rf/subscribe [:users]))}]
    (pr-str @(rf/subscribe [:users]))
    [debug-cache :admin]])
 
