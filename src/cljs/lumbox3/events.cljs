@@ -106,17 +106,18 @@
 
 (defn unmarshal-user
   [m]
-  (as-> m $
-        (csk-extras/transform-keys csk/->kebab-case $)
-        (if-let [groups (:groups $)]
-          (update $ :groups set)
-          $)
-        (if-let [locked-at (:locked-at $)]
-          (assoc $ :locked-at (js/Date. locked-at))
-          $)
-        (if-let [created-at (:created-at $)]
-          (assoc $ :created-at (js/Date. created-at))
-          $)))
+  (when m
+    (as-> m $
+          (csk-extras/transform-keys csk/->kebab-case $)
+          (if-let [groups (:groups $)]
+            (update $ :groups set)
+            $)
+          (if-let [locked-at (:locked-at $)]
+            (assoc $ :locked-at (js/Date. locked-at))
+            $)
+          (if-let [created-at (:created-at $)]
+            (assoc $ :created-at (js/Date. created-at))
+            $))))
 
 (rf/reg-event-fx
   :login
@@ -195,6 +196,20 @@
   (fn [{db :db} [_ route]]
     {:db (-> db
              (update :admin dissoc :user))
-     #_:http-xhrio #_{:method :post
+     :http-xhrio {:method :post
                   :uri "/api"
-                  :params {:query "{ user "}}}))
+                  :params {:query "query User($id: ID!) {
+                  user(id: $id) { id email locked_at created_at groups } }"
+                           :variables {:id (get-in route [:parameters :path :id])}}
+                  :format          (ajax/transit-request-format)
+                  :response-format (ajax/transit-response-format)
+                  :on-success      [:user-query-succeeded]
+                  :on-failure      [:http-xhrio-graphql-failed :admin]}}))
+
+(rf/reg-event-fx
+  :user-query-succeeded
+  (fn [{db :db} [e result]]
+    {:db (-> db
+             (assoc-in [:admin :user] (->> result :data :user unmarshal-user))
+             (assoc :status e)
+             (assoc :result result))}))
