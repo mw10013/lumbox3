@@ -167,7 +167,10 @@
     :render    #(r/as-element [:span (.toDateString %)])}
    {:title     "Groups"
     :dataIndex :groups
-    :key       :groups}])
+    :key       :groups}
+   {:title "Actions"
+    :key :actions
+    :render #(r/as-element [:span "Actions"])}])
 
 (defn admin-users []
   [:div
@@ -178,6 +181,11 @@
                    :rowKey     #(aget % "id")}]
    (pr-str @(rf/subscribe [:users]))
    [debug-cache :admin]])
+
+(defn admin-user []
+  [:div
+   [:h3 "Admin User"]
+   (pr-str @re-frame.db/app-db)])
 
 (defn placeholder-view [name]
   [:div
@@ -193,6 +201,7 @@
    :about           about-view
    :admin-dashboard admin-dashboard
    :admin-users     admin-users
+   :admin-user admin-user
    :admin-groups    (partial placeholder-view :admin-groups)
    :register        register-view
    :login           login-view

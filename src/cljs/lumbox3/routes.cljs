@@ -1,6 +1,9 @@
 (ns lumbox3.routes
   (:require [re-frame.core :as rf]
             [reitit.core :as r]
+            [reitit.coercion.spec]
+            [reitit.coercion :as coercion]
+            [clojure.test.check.generators]
             [goog.events :as events]
             [goog.history.EventType :as HistoryEventType]
             [lumbox3.events])
@@ -13,12 +16,17 @@
      ["about" :about]
      ["admin"
       ["" {:name :admin-dashboard :breadcrumb-name "Admin"}]
-      ["/users" {:name :admin-users :breadcrumb-name "Users" :start [:get-users]}]
+      ["/users"
+       ["" {:name :admin-users :breadcrumb-name "Users" :start [:get-users]}]
+       ["/:id" {:name :admin-user :breadcrumb-name "User"
+                :coercion reitit.coercion.spec/coercion
+                :parameters {:path {:id string?}}}]]
       ["/groups" {:name :admin-groups :breadcrumb-name "Groups"}]]
      ["register" :register]
      ["login" :login]
      ["logout" {:name :logout :start [:logout]}]
-     ["error" :error]]))
+     ["error" :error]]
+    {:compile coercion/compile-request-coercers}))
 
 ;; TODO: routes: path: why does match-by-name! not throw exception
 ;; TODO: routes: path: handle query params
@@ -49,7 +57,12 @@
             (when-let [match (r/match-by-path router path)]
               (assoc-in match [:data :breadcrumb-href] (str "#" path)))) paths)))
 
-;; TODO: handle query params
+#_(defn match-by-path-and-coerce! [path]
+  (if-let [match (r/match-by-path router path)]
+    (assoc match :parameters (coercion/coerce! match))))
+
+;; TODO: routes: dispatch-path: handle query params
+;; TODO: routes: dispatch-path: handle coercion exception
 ;; https://google.github.io/closure-library/api/goog.Uri.html
 ;; https://google.github.io/closure-library/api/goog.Uri.QueryData.html
 ;; https://github.com/juxt/bidi/issues/51
@@ -58,7 +71,7 @@
   (let [uri (goog.Uri. path-with-query-string)]
     (console.log "dispatch-path:" path-with-query-string (.getPath uri) (.getQuery uri))
     (if-let [match (r/match-by-path router (.getPath uri))]
-      (do
+      (let [match (assoc match :parameters (coercion/coerce! match))]
         (rf/dispatch [:set-route match])
         (when-let [event (get-in match [:data :start])]
           (rf/dispatch event)))
