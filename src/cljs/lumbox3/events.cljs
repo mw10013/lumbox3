@@ -189,3 +189,12 @@
   :users
   (fn [_ _] (rf/subscribe [:admin]))
   (fn [admin] (:users admin)))
+
+(rf/reg-event-fx
+  :edit-user
+  (fn [{db :db} [_ route]]
+    {:db (-> db
+             (update :admin dissoc :user))
+     #_:http-xhrio #_{:method :post
+                  :uri "/api"
+                  :params {:query "{ user "}}}))

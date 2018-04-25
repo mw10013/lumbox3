@@ -20,7 +20,8 @@
        ["" {:name :admin-users :breadcrumb-name "Users" :start [:get-users]}]
        ["/:id" {:name :admin-user :breadcrumb-name "User"
                 :coercion reitit.coercion.spec/coercion
-                :parameters {:path {:id string?}}}]]
+                :parameters {:path {:id string?}}
+                :start [:edit-user]}]]
       ["/groups" {:name :admin-groups :breadcrumb-name "Groups"}]]
      ["register" :register]
      ["login" :login]
@@ -57,10 +58,6 @@
             (when-let [match (r/match-by-path router path)]
               (assoc-in match [:data :breadcrumb-href] (str "#" path)))) paths)))
 
-#_(defn match-by-path-and-coerce! [path]
-  (if-let [match (r/match-by-path router path)]
-    (assoc match :parameters (coercion/coerce! match))))
-
 ;; TODO: routes: dispatch-path: handle query params
 ;; TODO: routes: dispatch-path: handle coercion exception
 ;; https://google.github.io/closure-library/api/goog.Uri.html
@@ -74,7 +71,7 @@
       (let [match (assoc match :parameters (coercion/coerce! match))]
         (rf/dispatch [:set-route match])
         (when-let [event (get-in match [:data :start])]
-          (rf/dispatch event)))
+          (rf/dispatch (conj event match))))
       (rf/dispatch [:set-route {:data {:name :path-not-found ::comment "Synthetic route"} :path (.getPath uri)}]))))
 
 ;; https://lispcast.com/mastering-client-side-routing-with-secretary-and-goog-history/

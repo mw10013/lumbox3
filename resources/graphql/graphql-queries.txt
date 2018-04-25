@@ -1,5 +1,9 @@
 query Users {
-  users { id email }
+  users { id email locked_at created_at groups }
+}
+
+query User {
+  user(id: "1") { id email created_at }
 }
 
 mutation RegisterUser($register_user_input: RegisterUserInput!) {

@@ -52,7 +52,7 @@ from users u
 order by email;
 
 -- :name user-by-email :? :1
--- :doc Retrieves user by email.
+-- :doc Get user by email.
 with g as(
     select user_id, array_agg(group_id) as groups from user_groups group by user_id
 )
@@ -60,6 +60,16 @@ select u.*, g.groups
 from users u
   join g using(user_id)
 where email = :email;
+
+-- :name user-by-id :? :1
+-- :doc Get user by id.
+with g as(
+    select user_id, array_agg(group_id) as groups from user_groups group by user_id
+)
+select u.*, g.groups
+from users u
+  join g using(user_id)
+where user_id = :user_id;
 
 /*
 -- :name create-user! :! :n

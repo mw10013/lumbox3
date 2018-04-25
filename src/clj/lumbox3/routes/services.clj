@@ -31,10 +31,21 @@
   [_ _ _]
   (map marshal-user (db/users)))
 
+
+;; TODO: services: user: check perms.
+;; TODO: services: user: handle number format exception
+(defn user
+  [_ {:keys [id]} _]
+  (some->> id
+           bigint
+           (hash-map :user-id)
+           db/user-by-id
+           marshal-user))
+
 (defn register-user
   [_ {:keys [input]} _]
   (let [[errors {:keys [email password]}] (v/validate-register-user-input input)
-        _ (println "register-user: :input" input)]
+        ˜_ (println "register-user: :input" input)]
     (if errors
       (resolve-as nil {:message "Invalid input." :anomaly {:category :incorrect} :input-errors errors})
       (try
@@ -84,9 +95,10 @@
                            edn/read-string
                            (lacinia-util/attach-resolvers
                              {:query/users            users
+                              :query/user             user
                               :mutation/register-user register-user
-                              :mutation/login login
-                              :mutation/logout logout})
+                              :mutation/login         login
+                              :mutation/logout        logout})
                            (lacinia-util/attach-scalar-transformers
                              {:date-time-utc-parser     (schema/as-conformer tc/from-string)
                               :date-time-utc-serializer (schema/as-conformer tc/to-string)})

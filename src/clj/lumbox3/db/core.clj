@@ -82,6 +82,7 @@
 (alter-var-root #'lumbox3.db.core/create-user! wrap-unmarshal-one-user)
 (alter-var-root #'lumbox3.db.core/users wrap-unmarshal-many-users)
 (alter-var-root #'lumbox3.db.core/user-by-email wrap-unmarshal-one-user)
+(alter-var-root #'lumbox3.db.core/user-by-id wrap-unmarshal-one-user)
 
 (extend-protocol jdbc/IResultSetReadColumn
   Array
@@ -158,6 +159,7 @@
 
 (comment
   (users)
+  (user-by-id {:user-id 1})
   (user-by-email {:user-email "foo@foo.com"})
   (insert-user! {:user-email "bar4@bar.com" :encrypted-password "letmein"})
   (delete-user! {:user-id 3})

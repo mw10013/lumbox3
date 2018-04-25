@@ -35,7 +35,11 @@
  :queries
  {:users {:type        (list User)
           :description "Get all users."
-          :resolve     :query/users}}
+          :resolve     :query/users}
+  :user {:type User
+         :description "Get user."
+         :args {:id {:type (non-null ID)}}
+         :resolve :query/user}}
  :mutations
  {:register_user {:type        RegisterUserPayload
                   :description "Register user."
