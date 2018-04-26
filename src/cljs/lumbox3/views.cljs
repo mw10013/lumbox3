@@ -41,17 +41,17 @@
 
 (defn register-view []
   (let [cache-key :register
-        input @(rf/subscribe [:input cache-key])
-        input-errors @(rf/subscribe [:input-errors cache-key])
-        error-message @(rf/subscribe [:error-message cache-key])]
+        input @(rf/subscribe [:input-cache cache-key])
+        input-errors @(rf/subscribe [:input-cache-errors cache-key])
+        error-message @(rf/subscribe [:error-message-cache cache-key])]
     [:> antd.Row {:type :flex :justify :center}
      [:> antd.Form {:style     {:max-width "300px"}
                     :on-submit (fn [e]
                                  (.preventDefault e)
                                  (.stopPropagation e)
-                                 (let [[input-errors input] (v/validate-register-user-input @(rf/subscribe [:input cache-key]))]
-                                   (rf/dispatch [:set-input-errors cache-key input-errors])
-                                   (rf/dispatch [:set-error-message cache-key nil])
+                                 (let [[input-errors input] (v/validate-register-user-input @(rf/subscribe [:input-cache cache-key]))]
+                                   (rf/dispatch [:set-input-cache-errors cache-key input-errors])
+                                   (rf/dispatch [:set-error-message-cache cache-key nil])
                                    (when-not input-errors
                                      (rf/dispatch [:register-user cache-key input]))))}
       (when error-message
@@ -61,29 +61,29 @@
        [:> antd.Input {:placeholder "E-mail address"
                        :prefix      (r/as-element [:> antd.Icon {:type :user :style {:color "rgba(0,0,0,.25)"}}])
                        :value       (:email input)
-                       :on-change   (partial dispatch-sync-flush [:set-input cache-key :email])}]]
+                       :on-change   (partial dispatch-sync-flush [:set-input-cache cache-key :email])}]]
       [:> antd.Form.Item (when-let [errors (:password input-errors)] {:validateStatus :error :hasFeedback true
                                                                       :help           errors})
        [:> antd.Input {:type      :password :placeholder "Password"
                        :prefix    (r/as-element [:> antd.Icon {:type :lock :style {:color "rgba(0,0,0,.25)"}}])
                        :value     (:password input)
-                       :on-change (partial dispatch-sync-flush [:set-input cache-key :password])}]]
+                       :on-change (partial dispatch-sync-flush [:set-input-cache cache-key :password])}]]
       [:> antd.Button {:type :primary :htmlType :submit :style {:width "100%"}} "Register"]
       [debug-cache cache-key]]]))
 
 (defn login-view []
   (let [cache-key :login
-        input @(rf/subscribe [:input cache-key])
-        input-errors @(rf/subscribe [:input-errors cache-key])
-        error-message @(rf/subscribe [:error-message cache-key])]
+        input @(rf/subscribe [:input-cache cache-key])
+        input-errors @(rf/subscribe [:input-cache-errors cache-key])
+        error-message @(rf/subscribe [:error-message-cache cache-key])]
     [:> antd.Row {:type :flex :justify :center}
      [:> antd.Form {:style     {:max-width "300px"}
                     :on-submit (fn [e]
                                  (.preventDefault e)
                                  (.stopPropagation e)
-                                 (let [[input-errors input] (v/validate-login-input @(rf/subscribe [:input cache-key]))]
-                                   (rf/dispatch [:set-input-errors cache-key input-errors])
-                                   (rf/dispatch [:set-error-message cache-key nil])
+                                 (let [[input-errors input] (v/validate-login-input @(rf/subscribe [:input-cache cache-key]))]
+                                   (rf/dispatch [:set-input-cache-errors cache-key input-errors])
+                                   (rf/dispatch [:set-error-message-cache cache-key nil])
                                    (when-not input-errors
                                      (rf/dispatch [:login cache-key input]))))}
       (when error-message
@@ -93,19 +93,19 @@
        [:> antd.Input {:placeholder "E-mail address"
                        :prefix      (r/as-element [:> antd.Icon {:type :user :style {:color "rgba(0,0,0,.25)"}}])
                        :value       (:email input)
-                       :on-change   (partial dispatch-sync-flush [:set-input cache-key :email])}]]
+                       :on-change   (partial dispatch-sync-flush [:set-input-cache cache-key :email])}]]
       [:> antd.Form.Item (when-let [errors (:password input-errors)] {:validateStatus :error :hasFeedback true
                                                                       :help           errors})
        [:> antd.Input {:type      :password :placeholder "Password"
                        :prefix    (r/as-element [:> antd.Icon {:type :lock :style {:color "rgba(0,0,0,.25)"}}])
                        :value     (:password input)
-                       :on-change (partial dispatch-sync-flush [:set-input cache-key :password])}]]
+                       :on-change (partial dispatch-sync-flush [:set-input-cache cache-key :password])}]]
       [:> antd.Button {:type :primary :htmlType :submit :style {:width "100%"}} "Login"]
       [debug-cache cache-key]]]))
 
 (defn logout-view []
   (let [cache-key :logout
-        error-message @(rf/subscribe [:error-message cache-key])]
+        error-message @(rf/subscribe [:error-message-cache cache-key])]
     [:div
      [:h3 "Logout"]
      (when error-message [:div.alert.alert-danger error-message])
@@ -155,8 +155,8 @@
     :dataIndex :id
     :key       :id}
    {:title     "Email"
-    :dataIndex :email
-    :key       :email}
+    :key       :email
+    :render #(r/as-element [:a {:href (routes/href :admin-user {:id (aget % "id")})} (aget % "email")])}
    {:title     "Locked At"
     :dataIndex :locked-at
     :key       :locked-at
@@ -170,7 +170,7 @@
     :key       :groups}
    {:title "Actions"
     :key :actions
-    :render #(r/as-element [:span "Actions"])}])
+    :render #(r/as-element [:a {:href (routes/href :admin-user {:id (aget % "id")})} "Edit"])}])
 
 (defn admin-users []
   [:div
@@ -183,9 +183,19 @@
    [debug-cache :admin]])
 
 (defn admin-user []
-  [:div
-   [:h3 "Admin User"]
-   (pr-str @re-frame.db/app-db)])
+  (let [user @(rf/subscribe [:user])]
+    [:div
+     [breadcrumbs]
+     [:> antd.Form {:on-submit (fn [e]
+                                 (.preventDefault e)
+                                 (.stopPropagation e))}
+      [:> antd.Form.Item
+       [:> antd.Input {:placeholder "E-mail address"
+                       :value (:email user)
+                       :on-change (partial dispatch-sync-flush [:set-user-field :email])}]]]
+     (when user (pr-str user))
+     [:hr]
+     (pr-str @re-frame.db/app-db)]))
 
 (defn placeholder-view [name]
   [:div

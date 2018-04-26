@@ -18,7 +18,7 @@
       ["" {:name :admin-dashboard :breadcrumb-name "Admin"}]
       ["/users"
        ["" {:name :admin-users :breadcrumb-name "Users" :start [:get-users]}]
-       ["/:id" {:name :admin-user :breadcrumb-name "User"
+       ["/:id" {:name :admin-user :breadcrumb-name "Edit User"
                 :coercion reitit.coercion.spec/coercion
                 :parameters {:path {:id string?}}
                 :start [:edit-user]}]]

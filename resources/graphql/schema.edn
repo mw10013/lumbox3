@@ -12,6 +12,8 @@
                         :fields      {:id         {:type (non-null ID)}
                                       :email      {:type        (non-null String)
                                                    :description "Email of user."}
+                                      :note {:type String
+                                             :description "Note about user."}
                                       :locked_at  {:type        DateTimeUTC
                                                    :description "Locked timestamp."}
                                       :created_at {:type        (non-null DateTimeUTC)
