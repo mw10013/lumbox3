@@ -87,8 +87,13 @@
           (assoc :result result)
           (update-in [:cache k] assoc :input-errors (:input-errors error) :error-message (:message error))))))
 
+(rf/reg-event-db
+  :setup-register
+  (fn [db [_ route]]
+    (update db :cache dissoc (get-in route [:data :name]))))
+
 (rf/reg-event-fx
-  :register-user
+  :register
   (fn [{db :db} [_ cache-key input]]
     {:http-xhrio {:method          :post
                   :uri             "/api"
@@ -97,11 +102,11 @@
                                     :variables {:register_user_input (csk-extras/transform-keys csk/->snake_case input)}}
                   :format          (ajax/transit-request-format)
                   :response-format (ajax/transit-response-format)
-                  :on-success      [:register-user-succeeded cache-key]
+                  :on-success      [:register-succeeded cache-key]
                   :on-failure      [:http-xhrio-graphql-failed cache-key]}}))
 
 (rf/reg-event-fx
-  :register-user-succeeded
+  :register-succeeded
   (fn [{db :db} [e cache-key result]]
     {:db (-> db
              (assoc :status e)
@@ -123,6 +128,11 @@
           (if-let [created-at (:created-at $)]
             (assoc $ :created-at (js/Date. created-at))
             $))))
+
+(rf/reg-event-db
+  :setup-login
+  (fn [db [_ route]]
+    (update db :cache dissoc (get-in route [:data :name]))))
 
 (rf/reg-event-fx
   :login

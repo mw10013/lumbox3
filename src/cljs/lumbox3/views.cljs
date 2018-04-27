@@ -53,7 +53,7 @@
                                    (rf/dispatch [:set-input-errors cache-key input-errors])
                                    (rf/dispatch [:set-error-message cache-key nil])
                                    (when-not input-errors
-                                     (rf/dispatch [:register-user cache-key input]))))}
+                                     (rf/dispatch [:register cache-key input]))))}
       (when error-message
         [:> antd.Alert {:type :error :message error-message}])
       [:> antd.Form.Item (when-let [errors (:email input-errors)] {:validateStatus :error :hasFeedback true
@@ -69,7 +69,7 @@
                        :value     (:password input)
                        :on-change (partial dispatch-sync-flush [:set-input-kv cache-key :password])}]]
       [:> antd.Button {:type :primary :htmlType :submit :style {:width "100%"}} "Register"]
-      [debug-cache cache-key]]]))
+      #_[debug-cache cache-key]]]))
 
 (defn login-view []
   (let [cache-key @(rf/subscribe [:route-name])
@@ -101,7 +101,7 @@
                        :value     (:password input)
                        :on-change (partial dispatch-sync-flush [:set-input-kv cache-key :password])}]]
       [:> antd.Button {:type :primary :htmlType :submit :style {:width "100%"}} "Login"]
-      [debug-cache cache-key]]]))
+      #_[debug-cache cache-key]]]))
 
 (defn logout-view []
   (let [cache-key @(rf/subscribe [:route-name])

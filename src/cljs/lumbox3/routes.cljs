@@ -23,8 +23,8 @@
                 :parameters {:path {:id string?}}
                 :start [:edit-user]}]]
       ["/groups" {:name :admin-groups :breadcrumb-name "Groups"}]]
-     ["register" :register]
-     ["login" :login]
+     ["register" {:name :register :start [:setup-register]}]
+     ["login" {:name :login :start [:setup-login]}]
      ["logout" {:name :logout :start [:logout]}]
      ["error" :error]]
     {:compile coercion/compile-request-coercers}))
