@@ -35,7 +35,7 @@
 
 (rf/reg-sub
   :cache
-  (fn [db [_ k]] (get-in db [:cache k])))
+  (fn [db [_ cache-key]] (get-in db [:cache cache-key])))
 
 #_(reg-sub-raw
   :input
@@ -60,6 +60,11 @@
 
 (rf/reg-event-db
   :set-input
+  (fn [db [_ cache-key input]]
+    (assoc-in db [:cache cache-key :input] input)))
+
+(rf/reg-event-db
+  :set-input-kv
   (fn [db [_ cache-key k v]]
     (assoc-in db [:cache cache-key :input k] v)))
 
@@ -165,7 +170,6 @@
 (rf/reg-event-fx
   :get-users
   (fn [{db :db}]
-    (println ":get-users")
     {:db         (-> db
                      (update :admin dissoc :users))
      :http-xhrio {:method :post
@@ -194,22 +198,24 @@
 (rf/reg-event-fx
   :edit-user
   (fn [{db :db} [_ route]]
-    {:db (-> db
-             (update :admin dissoc :user))
-     :http-xhrio {:method :post
-                  :uri "/api"
-                  :params {:query "query User($id: ID!) {
+    (let [cache-key (get-in route [:data :name])]
+      {:db         (-> db
+                       (update :cache dissoc cache-key))
+       :http-xhrio {:method          :post
+                    :uri             "/api"
+                    :params          {:query     "query User($id: ID!) {
                   user(id: $id) { id email locked_at created_at groups } }"
-                           :variables {:id (get-in route [:parameters :path :id])}}
-                  :format          (ajax/transit-request-format)
-                  :response-format (ajax/transit-response-format)
-                  :on-success      [:user-query-succeeded]
-                  :on-failure      [:http-xhrio-graphql-failed :admin]}}))
+                                      :variables {:id (get-in route [:parameters :path :id])}}
+                    :format          (ajax/transit-request-format)
+                    :response-format (ajax/transit-response-format)
+                    :on-success      [:edit-user-query-succeeded cache-key]
+                    :on-failure      [:http-xhrio-graphql-failed cache-key]}})))
 
 (rf/reg-event-fx
-  :user-query-succeeded
-  (fn [{db :db} [e result]]
-    {:db (-> db
-             (assoc-in [:admin :user] (->> result :data :user unmarshal-user))
-             (assoc :status e)
-             (assoc :result result))}))
+  :edit-user-query-succeeded
+  (fn [{db :db} [e cache-key result]]
+    (let [user (->> result :data :user unmarshal-user)]
+      {:db (-> db
+               (update-in [:cache cache-key] assoc :user user :input user)
+               (assoc :status e)
+               (assoc :result result))})))

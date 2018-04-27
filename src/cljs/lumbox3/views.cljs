@@ -61,13 +61,13 @@
        [:> antd.Input {:placeholder "E-mail address"
                        :prefix      (r/as-element [:> antd.Icon {:type :user :style {:color "rgba(0,0,0,.25)"}}])
                        :value       (:email input)
-                       :on-change   (partial dispatch-sync-flush [:set-input cache-key :email])}]]
+                       :on-change   (partial dispatch-sync-flush [:set-input-kv cache-key :email])}]]
       [:> antd.Form.Item (when-let [errors (:password input-errors)] {:validateStatus :error :hasFeedback true
                                                                       :help           errors})
        [:> antd.Input {:type      :password :placeholder "Password"
                        :prefix    (r/as-element [:> antd.Icon {:type :lock :style {:color "rgba(0,0,0,.25)"}}])
                        :value     (:password input)
-                       :on-change (partial dispatch-sync-flush [:set-input cache-key :password])}]]
+                       :on-change (partial dispatch-sync-flush [:set-input-kv cache-key :password])}]]
       [:> antd.Button {:type :primary :htmlType :submit :style {:width "100%"}} "Register"]
       [debug-cache cache-key]]]))
 
@@ -93,13 +93,13 @@
        [:> antd.Input {:placeholder "E-mail address"
                        :prefix      (r/as-element [:> antd.Icon {:type :user :style {:color "rgba(0,0,0,.25)"}}])
                        :value       (:email input)
-                       :on-change   (partial dispatch-sync-flush [:set-input cache-key :email])}]]
+                       :on-change   (partial dispatch-sync-flush [:set-input-kv cache-key :email])}]]
       [:> antd.Form.Item (when-let [errors (:password input-errors)] {:validateStatus :error :hasFeedback true
                                                                       :help           errors})
        [:> antd.Input {:type      :password :placeholder "Password"
                        :prefix    (r/as-element [:> antd.Icon {:type :lock :style {:color "rgba(0,0,0,.25)"}}])
                        :value     (:password input)
-                       :on-change (partial dispatch-sync-flush [:set-input cache-key :password])}]]
+                       :on-change (partial dispatch-sync-flush [:set-input-kv cache-key :password])}]]
       [:> antd.Button {:type :primary :htmlType :submit :style {:width "100%"}} "Login"]
       [debug-cache cache-key]]]))
 
@@ -124,6 +124,7 @@
   [:div
    [:> antd.Alert {:type :error :message "Error" :description "Error description." :show-icon true}]])
 
+;; TODO: views: breadcrumbs: add key
 (defn breadcrumbs []
   (let [path @(rf/subscribe [:route-path])
         breadcrumbs (routes/breadcrumbs path)]
@@ -184,7 +185,8 @@
    [debug-cache :admin]])
 
 (defn admin-user []
-  (let [user @(rf/subscribe [:user])]
+  (let [cache-key @(rf/subscribe [:route-name])
+        input @(rf/subscribe [:input cache-key])]
     [:div
      [breadcrumbs]
      [:> antd.Form {:on-submit (fn [e]
@@ -192,9 +194,9 @@
                                  (.stopPropagation e))}
       [:> antd.Form.Item
        [:> antd.Input {:placeholder "E-mail address"
-                       :value (:email user)
-                       :on-change (partial dispatch-sync-flush [:set-user-field :email])}]]]
-     (when user (pr-str user))
+                       :value (:email input)
+                       :on-change (partial dispatch-sync-flush [:set-input-kv cache-key :email])}]]]
+     (when input (pr-str input))
      [:hr]
      (pr-str @re-frame.db/app-db)]))
 
