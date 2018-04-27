@@ -40,50 +40,50 @@
   (r/flush))
 
 (defn register-view []
-  (let [cache-key :register
-        input @(rf/subscribe [:input-cache cache-key])
-        input-errors @(rf/subscribe [:input-cache-errors cache-key])
-        error-message @(rf/subscribe [:error-message-cache cache-key])]
+  (let [cache-key @(rf/subscribe [:route-name])
+        input @(rf/subscribe [:input cache-key])
+        input-errors @(rf/subscribe [:input-errors cache-key])
+        error-message @(rf/subscribe [:error-message cache-key])]
     [:> antd.Row {:type :flex :justify :center}
      [:> antd.Form {:style     {:max-width "300px"}
                     :on-submit (fn [e]
                                  (.preventDefault e)
                                  (.stopPropagation e)
-                                 (let [[input-errors input] (v/validate-register-user-input @(rf/subscribe [:input-cache cache-key]))]
-                                   (rf/dispatch [:set-input-cache-errors cache-key input-errors])
-                                   (rf/dispatch [:set-error-message-cache cache-key nil])
+                                 (let [[input-errors input] (v/validate-register-user-input @(rf/subscribe [:input cache-key]))]
+                                   (rf/dispatch [:set-input-errors cache-key input-errors])
+                                   (rf/dispatch [:set-error-message cache-key nil])
                                    (when-not input-errors
                                      (rf/dispatch [:register-user cache-key input]))))}
       (when error-message
-        [:p [:> antd.Alert {:type :error :message error-message}]])
+        [:> antd.Alert {:type :error :message error-message}])
       [:> antd.Form.Item (when-let [errors (:email input-errors)] {:validateStatus :error :hasFeedback true
                                                                    :help           errors})
        [:> antd.Input {:placeholder "E-mail address"
                        :prefix      (r/as-element [:> antd.Icon {:type :user :style {:color "rgba(0,0,0,.25)"}}])
                        :value       (:email input)
-                       :on-change   (partial dispatch-sync-flush [:set-input-cache cache-key :email])}]]
+                       :on-change   (partial dispatch-sync-flush [:set-input cache-key :email])}]]
       [:> antd.Form.Item (when-let [errors (:password input-errors)] {:validateStatus :error :hasFeedback true
                                                                       :help           errors})
        [:> antd.Input {:type      :password :placeholder "Password"
                        :prefix    (r/as-element [:> antd.Icon {:type :lock :style {:color "rgba(0,0,0,.25)"}}])
                        :value     (:password input)
-                       :on-change (partial dispatch-sync-flush [:set-input-cache cache-key :password])}]]
+                       :on-change (partial dispatch-sync-flush [:set-input cache-key :password])}]]
       [:> antd.Button {:type :primary :htmlType :submit :style {:width "100%"}} "Register"]
       [debug-cache cache-key]]]))
 
 (defn login-view []
-  (let [cache-key :login
-        input @(rf/subscribe [:input-cache cache-key])
-        input-errors @(rf/subscribe [:input-cache-errors cache-key])
-        error-message @(rf/subscribe [:error-message-cache cache-key])]
+  (let [cache-key @(rf/subscribe [:route-name])
+        input @(rf/subscribe [:input cache-key])
+        input-errors @(rf/subscribe [:input-errors cache-key])
+        error-message @(rf/subscribe [:error-message cache-key])]
     [:> antd.Row {:type :flex :justify :center}
      [:> antd.Form {:style     {:max-width "300px"}
                     :on-submit (fn [e]
                                  (.preventDefault e)
                                  (.stopPropagation e)
-                                 (let [[input-errors input] (v/validate-login-input @(rf/subscribe [:input-cache cache-key]))]
-                                   (rf/dispatch [:set-input-cache-errors cache-key input-errors])
-                                   (rf/dispatch [:set-error-message-cache cache-key nil])
+                                 (let [[input-errors input] (v/validate-login-input @(rf/subscribe [:input cache-key]))]
+                                   (rf/dispatch [:set-input-errors cache-key input-errors])
+                                   (rf/dispatch [:set-error-message cache-key nil])
                                    (when-not input-errors
                                      (rf/dispatch [:login cache-key input]))))}
       (when error-message
@@ -93,19 +93,19 @@
        [:> antd.Input {:placeholder "E-mail address"
                        :prefix      (r/as-element [:> antd.Icon {:type :user :style {:color "rgba(0,0,0,.25)"}}])
                        :value       (:email input)
-                       :on-change   (partial dispatch-sync-flush [:set-input-cache cache-key :email])}]]
+                       :on-change   (partial dispatch-sync-flush [:set-input cache-key :email])}]]
       [:> antd.Form.Item (when-let [errors (:password input-errors)] {:validateStatus :error :hasFeedback true
                                                                       :help           errors})
        [:> antd.Input {:type      :password :placeholder "Password"
                        :prefix    (r/as-element [:> antd.Icon {:type :lock :style {:color "rgba(0,0,0,.25)"}}])
                        :value     (:password input)
-                       :on-change (partial dispatch-sync-flush [:set-input-cache cache-key :password])}]]
+                       :on-change (partial dispatch-sync-flush [:set-input cache-key :password])}]]
       [:> antd.Button {:type :primary :htmlType :submit :style {:width "100%"}} "Login"]
       [debug-cache cache-key]]]))
 
 (defn logout-view []
-  (let [cache-key :logout
-        error-message @(rf/subscribe [:error-message-cache cache-key])]
+  (let [cache-key @(rf/subscribe [:route-name])
+        error-message @(rf/subscribe [:error-message cache-key])]
     [:div
      [:h3 "Logout"]
      (when error-message [:div.alert.alert-danger error-message])
@@ -171,6 +171,7 @@
    {:title "Actions"
     :key :actions
     :render #(r/as-element [:a {:href (routes/href :admin-user {:id (aget % "id")})} "Edit"])}])
+
 
 (defn admin-users []
   [:div

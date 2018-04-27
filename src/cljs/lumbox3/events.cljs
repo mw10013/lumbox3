@@ -44,53 +44,43 @@
       (:input @(rf/subscribe [:cache cache-key])))))
 
 (rf/reg-sub
-  :input-cache
+  :input
   (fn [[_ cache-key] _] (rf/subscribe [:cache cache-key]))
   (fn [cache] (:input cache)))
 
 (rf/reg-sub
-  :input-cache-errors
+  :input-errors
   (fn [[_ cache-key]] (rf/subscribe [:cache cache-key]))
   (fn [cache] (:input-errors cache)))
 
 (rf/reg-sub
-  :error-message-cache
+  :error-message
   (fn [[_ cache-key]] (rf/subscribe [:cache cache-key]))
   (fn [cache] (:error-message cache)))
 
 (rf/reg-event-db
-  :set-input-cache
+  :set-input
   (fn [db [_ cache-key k v]]
     (assoc-in db [:cache cache-key :input k] v)))
 
 (rf/reg-event-db
-  :set-input-cache-errors
+  :set-input-errors
   (fn [db [_ cache-key input-errors]]
     (assoc-in db [:cache cache-key :input-errors] input-errors)))
 
 (rf/reg-event-db
-  :set-error-message-cache
+  :set-error-message
   (fn [db [_ cache-key error-message]]
     (assoc-in db [:cache cache-key :error-message] error-message)))
 
 (rf/reg-event-db
-  :http-xhrio-graphql-failed-cache
+  :http-xhrio-graphql-failed
   (fn [db [_ k result]]
     (let [error (some-> result (get-in [:response :errors]) first)]
       (-> db
           (assoc :status "http xhrio graphql failed")
           (assoc :result result)
           (update-in [:cache k] assoc :input-errors (:input-errors error) :error-message (:message error))))))
-
-(rf/reg-event-db
-  :http-xhrio-graphql-failed
-  (fn [db [_ result]]
-    (let [error (some-> result (get-in [:response :errors]) first)]
-      (-> db
-          (assoc :status "http xhrio graphql failed"
-                 :result result
-                 :input-errors (:input-errors error)
-                 :error-message (:message error))))))
 
 (rf/reg-event-fx
   :register-user
@@ -103,7 +93,7 @@
                   :format          (ajax/transit-request-format)
                   :response-format (ajax/transit-response-format)
                   :on-success      [:register-user-succeeded cache-key]
-                  :on-failure      [:http-xhrio-graphql-failed-cache cache-key]}}))
+                  :on-failure      [:http-xhrio-graphql-failed cache-key]}}))
 
 (rf/reg-event-fx
   :register-user-succeeded
@@ -140,7 +130,7 @@
                   :format          (ajax/transit-request-format)
                   :response-format (ajax/transit-response-format)
                   :on-success      [:login-succeeded cache-key]
-                  :on-failure      [:http-xhrio-graphql-failed-cache cache-key]}}))
+                  :on-failure      [:http-xhrio-graphql-failed cache-key]}}))
 
 (rf/reg-event-fx
   :login-succeeded
@@ -154,7 +144,7 @@
 
 (rf/reg-event-fx
   :logout
-  (fn [{db :db} [_ cache-key]]
+  (fn [{db :db} [_ cache-key input]]
     {:db (dissoc db :identity)
      :http-xhrio {:method          :post
                   :uri             "/api"
@@ -162,7 +152,7 @@
                   :format          (ajax/transit-request-format)
                   :response-format (ajax/transit-response-format)
                   :on-success      [:logout-succeeded cache-key]
-                  :on-failure      [:http-xhrio-graphql-failed-cache cache-key]}}))
+                  :on-failure      [:http-xhrio-graphql-failed cache-key]}}))
 
 (rf/reg-event-fx
   :logout-succeeded
@@ -175,6 +165,7 @@
 (rf/reg-event-fx
   :get-users
   (fn [{db :db}]
+    (println ":get-users")
     {:db         (-> db
                      (update :admin dissoc :users))
      :http-xhrio {:method :post
@@ -183,7 +174,7 @@
                   :format          (ajax/transit-request-format)
                   :response-format (ajax/transit-response-format)
                   :on-success      [:get-users-succeeded]
-                  :on-failure      [:http-xhrio-graphql-failed]}}))
+                  :on-failure      [:http-xhrio-graphql-failed :admin]}}))
 
 (rf/reg-event-fx
   :get-users-succeeded
@@ -204,7 +195,7 @@
   :edit-user
   (fn [{db :db} [_ route]]
     {:db (-> db
-             (update :admin dissoc :user :input :input-errors :error-message))
+             (update :admin dissoc :user))
      :http-xhrio {:method :post
                   :uri "/api"
                   :params {:query "query User($id: ID!) {
@@ -212,20 +203,13 @@
                            :variables {:id (get-in route [:parameters :path :id])}}
                   :format          (ajax/transit-request-format)
                   :response-format (ajax/transit-response-format)
-                  :on-success      [:edit-user-query-succeeded]
-                  :on-failure      [:http-xhrio-graphql-failed]}}))
+                  :on-success      [:user-query-succeeded]
+                  :on-failure      [:http-xhrio-graphql-failed :admin]}}))
 
 (rf/reg-event-fx
-  :edit-user-query-succeeded
+  :user-query-succeeded
   (fn [{db :db} [e result]]
-    (let [user (->> result :data :user unmarshal-user)]
-      {:db (-> db
-               (assoc-in [:admin :user] user)
-               (assoc :input user
-                      :status e
-                      :result result))})))
-
-(rf/reg-sub
-  :user
-  (fn [_ _] (rf/subscribe [:admin]))
-  (fn [admin] (:user admin)))
+    {:db (-> db
+             (assoc-in [:admin :user] (->> result :data :user unmarshal-user))
+             (assoc :status e)
+             (assoc :result result))}))
