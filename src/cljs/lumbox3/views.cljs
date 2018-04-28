@@ -186,35 +186,47 @@
 
 (defn admin-user []
   (let [cache-key @(rf/subscribe [:route-name])
-        input @(rf/subscribe [:input cache-key])]
+        input @(rf/subscribe [:input cache-key])
+        input-errors @(rf/subscribe [:input-errors cache-key])
+        error-message @(rf/subscribe [:error-message cache-key])]
     [:div
      [breadcrumbs]
-     [:> antd.Form {:layout    :vertical
-                    :on-submit (fn [e]
-                                 (.preventDefault e)
-                                 (.stopPropagation e))}
-      [:> antd.Form.Item {:label "E-mail"}
-       [:> antd.Input {:placeholder "E-mail address"
-                       :value       (:email input)
-                       :on-change   (partial dispatch-sync-flush [:set-input-kv cache-key :email])}]]
-      [:> antd.Form.Item {:label "Groups"}
-       [:> antd.Transfer {:titles ["Available" "User's"]
-                          :dataSource [{:key "admins" :title "Admins" :description "Desc of admins." :disabled false}
-                                       {:key "members" :title "Members" :description "Desc of members" :disabled false}]
-                          :render #(aget % "key")
-                          :targetKeys (->> :groups input (remove #(= :users %)))
-                          :selectedKeys (:groups-selected-keys input [])
-                          :onChange (fn [next-target-keys direction move-keys]
-                                      (let [groups (into #{:users} (map keyword next-target-keys))]
-                                        (rf/dispatch [:set-input-kv cache-key :groups groups])))
-                          :onSelectChange (fn [source-selected-keys target-selected-keys]
-                                            (rf/dispatch [:set-input-kv cache-key :groups-selected-keys
-                                                          (concat source-selected-keys target-selected-keys)]))
-                          }]]
-      [:> antd.Form.Item {:label "Note"}
-       [:> antd.Input.TextArea {:rows 4 :placeholder "Note about user."
-                       :value       (:note input)
-                       :on-change   (partial dispatch-sync-flush [:set-input-kv cache-key :note])}]]]
+     (when error-message
+       [:> antd.Alert {:type :error :message error-message}])
+     (when input
+       [:> antd.Form {:layout    :vertical
+                      :on-submit (fn [e]
+                                   (.preventDefault e)
+                                   (.stopPropagation e)
+                                   (let [[input-errors input] (v/validate-edit-user-input @(rf/subscribe [:input cache-key]))]
+                                     (println input-errors input)
+                                     (rf/dispatch [:set-input-errors cache-key input-errors])
+                                     (rf/dispatch [:set-error-message cache-key nil])))}
+        [:> antd.Form.Item (conj {:label "E-mail"}
+                                 (when-let [errors (:email input-errors)]
+                                   {:validateStatus :error :hasFeedback true :help errors}))
+         [:> antd.Input {:placeholder "E-mail address"
+                         :value       (:email input)
+                         :on-change   (partial dispatch-sync-flush [:set-input-kv cache-key :email])}]]
+        [:> antd.Form.Item {:label "Groups"}
+         [:> antd.Transfer {:titles         ["Available" "User's"]
+                            :dataSource     [{:key "admins" :title "Admins" :description "Desc of admins." :disabled false}
+                                             {:key "members" :title "Members" :description "Desc of members" :disabled false}]
+                            :render         #(aget % "key")
+                            :targetKeys     (->> :groups input (remove #(= :users %)))
+                            :selectedKeys   (:groups-selected-keys input [])
+                            :onChange       (fn [next-target-keys direction move-keys]
+                                              (let [groups (into #{:users} (map keyword next-target-keys))]
+                                                (rf/dispatch [:set-input-kv cache-key :groups groups])))
+                            :onSelectChange (fn [source-selected-keys target-selected-keys]
+                                              (rf/dispatch [:set-input-kv cache-key :groups-selected-keys
+                                                            (concat source-selected-keys target-selected-keys)]))
+                            }]]
+        [:> antd.Form.Item {:label "Note"}
+         [:> antd.Input.TextArea {:rows      4 :placeholder "Note about user."
+                                  :value     (:note input)
+                                  :on-change (partial dispatch-sync-flush [:set-input-kv cache-key :note])}]]
+        [:> antd.Button {:type :primary :htmlType :submit} "Submit"]])
      (when input (pr-str input))
      [:hr]
      (pr-str @re-frame.db/app-db)]))
