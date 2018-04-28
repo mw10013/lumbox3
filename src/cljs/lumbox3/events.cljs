@@ -214,7 +214,7 @@
        :http-xhrio {:method          :post
                     :uri             "/api"
                     :params          {:query     "query User($id: ID!) {
-                  user(id: $id) { id email locked_at created_at groups } }"
+                  user(id: $id) { id email locked_at created_at groups note } }"
                                       :variables {:id (get-in route [:parameters :path :id])}}
                     :format          (ajax/transit-request-format)
                     :response-format (ajax/transit-response-format)
@@ -229,3 +229,4 @@
                (update-in [:cache cache-key] assoc :user user :input user)
                (assoc :status e)
                (assoc :result result))})))
+
