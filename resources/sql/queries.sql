@@ -28,7 +28,8 @@ where user_id = :user_id;
 -- :doc Updates an existing user record.
 update users
 set email = :email,
-    encrypted_password = :encrypted_password
+--    encrypted_password = :encrypted_password,
+    note = :note
 where user_id = :user_id;
 
 -- :name add-user-to-group! :! :n

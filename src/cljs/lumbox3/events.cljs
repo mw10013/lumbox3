@@ -226,7 +226,26 @@
   (fn [{db :db} [e cache-key result]]
     (let [user (->> result :data :user unmarshal-user)]
       {:db (-> db
-               (update-in [:cache cache-key] assoc :user user :input user)
+               (update-in [:cache cache-key] assoc :user user :input (update user :groups #(map name %)))
                (assoc :status e)
                (assoc :result result))})))
 
+(rf/reg-event-fx
+  :edit-user-save
+  (fn [{db :db} [_ cache-key input]]
+    (console.log "edit-user-save: input:" input)
+    {:http-xhrio {:method :post
+                  :uri             "/api"
+                  :params          {:query     "mutation Update($update_input: UpdateUserInput!) {
+                  update_user(input: $update_input) { user { id email groups } } }"
+                                    :variables {:update_input (csk-extras/transform-keys csk/->snake_case input)}}
+                  :format          (ajax/transit-request-format)
+                  :response-format (ajax/transit-response-format)
+                  :on-success      [:edit-user-succeeded cache-key]
+                  :on-failure      [:http-xhrio-graphql-failed cache-key]}}))
+
+(rf/reg-event-fx
+  :edit-user-save-succeeded
+  (fn [{db :db} [e cache-key result]]
+    {:db (-> db
+             (assoc :status e :result result))}))

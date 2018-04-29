@@ -88,6 +88,19 @@
       {:user (-> {:email email} db/user-by-email marshal-user)}
       (resolve-as nil {:message "Not logged in." :anomaly {:category :fault}}))))
 
+;; TODO: update-user: check logged in and perms.
+(defn update-user
+  [context {:keys [input]} _]
+  (println "update-user:" input)
+  (let [[errors input] (v/validate-edit-user-input input)]
+    (println "update-user: validated:" input)
+    (if errors
+      (resolve-as nil {:message "Invalid input." :anomaly {:category :incorrect} :input-errors errors})
+      (resolve-as nil {:message "Unimplemented." :anomaly {:category :incorrect} :input-errors errors})
+      #_(let [update-cnt (db/update-user! )]))
+    )
+  )
+
 ;; TODO: schema: error handling for scalar transformers
 (mount/defstate schema
                 :start (-> "resources/graphql/schema.edn"
@@ -98,7 +111,8 @@
                               :query/user             user
                               :mutation/register-user register-user
                               :mutation/login         login
-                              :mutation/logout        logout})
+                              :mutation/logout        logout
+                              :mutation/update-user update-user})
                            (lacinia-util/attach-scalar-transformers
                              {:date-time-utc-parser     (schema/as-conformer tc/from-string)
                               :date-time-utc-serializer (schema/as-conformer tc/to-string)})
@@ -114,6 +128,7 @@
   (let [{{:keys [query variables operation-name operationName]} :params} req
         query (or query (-> req :body slurp))
         _ (log/debugf "graphql: query: %s" query)
+        _ (log/debugf "graphql: variables: %s" variables)
         options {:operation-name (or operation-name operationName)}
         side-effects (atom {})
         context {:session (:session req) :side-effects side-effects}

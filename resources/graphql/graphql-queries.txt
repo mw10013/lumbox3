@@ -1,9 +1,15 @@
 query Users {
-  users { id email locked_at created_at groups }
+  users { id email locked_at created_at groups note }
 }
 
 query User {
-  user(id: "1") { id email created_at }
+  user(id: "1") { id email note groups created_at }
+}
+
+mutation UpdateUser($update_user_input: UpdateUserInput!) {
+  update_user(input: $update_user_input) {
+    user { id email }
+  }
 }
 
 mutation RegisterUser($register_user_input: RegisterUserInput!) {
@@ -33,7 +39,14 @@ mutation Logout {
     "email": "bee@sting.com",
     "password": "letmein"
   },
-  "delete_user_by_email_input": "bee@sting.com",
+  "update_user_input": {
+    "id": "1",
+    "email": "foo@foo.com",
+    "groups": [
+      "users"
+    ],
+    "note": "Some note..."
+  },
   "login_input": {
     "email": "bee@sting.com",
     "password": "letmein"

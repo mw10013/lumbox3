@@ -160,10 +160,11 @@
 (comment
   (users)
   (user-by-id {:user-id 1})
-  (user-by-email {:user-email "foo@foo.com"})
-  (insert-user! {:user-email "bar4@bar.com" :encrypted-password "letmein"})
+  (user-by-email {:email "foo@foo.com"})
+  (insert-user! {:email "bar4@bar.com" :encrypted-password "letmein"})
   (delete-user! {:user-id 3})
   (create-user! {:user-email "bar@bar.com" :encrypted-password "letmein"})
+  (update-user! {:user-id 1 :email "foo@foo.com" :note "Some note."})
 
   (hugsql.core/def-db-fns "sql/queries.sql")
   (hugsql.core/def-sqlvec-fns "sql/queries.sql")

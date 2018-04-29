@@ -1,31 +1,29 @@
 {:enums
  {:Group {:description "Enumeration of groups."
-          :values [{:enum-value :users :description "Every user is a member of the users group."}
-                   {:enum-value :members :description "Can use the features of the web app."}
-                   {:enum-value :customers :description "Pays money to use features of the web app."}
-                   {:enum-value :biz}
-                   {:enum-value :support}
-                   {:enum-value :devops}
-                   {:enum-value :admins}]}}
+          :values      [{:enum-value :users :description "Every user is a member of the users group."}
+                        {:enum-value :members :description "Can use the features of the web app."}
+                        {:enum-value :customers :description "Pays money to use features of the web app."}
+                        {:enum-value :biz}
+                        {:enum-value :support}
+                        {:enum-value :devops}
+                        {:enum-value :admins}]}}
  :objects
  {:User                {:description "User"
                         :fields      {:id         {:type (non-null ID)}
                                       :email      {:type        (non-null String)
                                                    :description "Email of user."}
-                                      :note {:type String
-                                             :description "Note about user."}
+                                      :note       {:type        String
+                                                   :description "Note about user."}
                                       :locked_at  {:type        DateTimeUTC
                                                    :description "Locked timestamp."}
                                       :created_at {:type        (non-null DateTimeUTC)
                                                    :description "Creation timestamp."}
-                                      :groups {:type (list Group)
-                                               :description "Groups the user belongs to."}}}
-  :RegisterUserPayload {:description "Register user payload."
-                        :fields      {:user {:type (non-null User)}}}
-  :LoginPayload        {:description "Login payload."
-                        :fields      {:user {:type (non-null User)}}}
-  :LogoutPayload       {:description "Logout payload."
-                        :fields      {:user {:type (non-null User)}}}}
+                                      :groups     {:type        (list Group)
+                                                   :description "Groups the user belongs to."}}}
+  :RegisterUserPayload {:fields {:user {:type (non-null User)}}}
+  :LoginPayload        {:fields {:user {:type (non-null User)}}}
+  :LogoutPayload       {:fields {:user {:type (non-null User)}}}
+  :UpdateUserPayload   {:fields {:user {:type (non-null User)}}}}
  :scalars
  {:DateTimeUTC {:parse     :date-time-utc-parser
                 :serialize :date-time-utc-serializer}}
@@ -33,15 +31,19 @@
  {:RegisterUserInput {:fields {:email    {:type (non-null String)}
                                :password {:type (non-null String)}}}
   :LoginInput        {:fields {:email    {:type (non-null String)}
-                               :password {:type (non-null String)}}}}
+                               :password {:type (non-null String)}}}
+  :UpdateUserInput   {:fields {:id     {:type (non-null ID)}
+                               :email  {:type (non-null String)}
+                               :groups {:type (list Group)}
+                               :note   {:type String}}}}
  :queries
  {:users {:type        (list User)
           :description "Get all users."
           :resolve     :query/users}
-  :user {:type User
-         :description "Get user."
-         :args {:id {:type (non-null ID)}}
-         :resolve :query/user}}
+  :user  {:type        User
+          :description "Get user."
+          :args        {:id {:type (non-null ID)}}
+          :resolve     :query/user}}
  :mutations
  {:register_user {:type        RegisterUserPayload
                   :description "Register user."
@@ -53,4 +55,7 @@
                   :resolve     :mutation/login}
   :logout        {:type        LogoutPayload
                   :description "Logout."
-                  :resolve     :mutation/logout}}}
+                  :resolve     :mutation/logout}
+  :update_user   {:type    UpdateUserPayload
+                  :args    {:input {:type (non-null UpdateUserInput)}}
+                  :resolve :mutation/update-user}}}

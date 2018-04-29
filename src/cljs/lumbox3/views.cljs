@@ -199,9 +199,10 @@
                                    (.preventDefault e)
                                    (.stopPropagation e)
                                    (let [[input-errors input] (v/validate-edit-user-input @(rf/subscribe [:input cache-key]))]
-                                     (println input-errors input)
                                      (rf/dispatch [:set-input-errors cache-key input-errors])
-                                     (rf/dispatch [:set-error-message cache-key nil])))}
+                                     (rf/dispatch [:set-error-message cache-key nil])
+                                     (when-not input-errors
+                                       (rf/dispatch [:edit-user-save cache-key (update input :groups (partial map keyword))]))))}
         [:> antd.Form.Item (conj {:label "E-mail"}
                                  (when-let [errors (:email input-errors)]
                                    {:validateStatus :error :hasFeedback true :help errors}))
@@ -210,13 +211,13 @@
                          :on-change   (partial dispatch-sync-flush [:set-input-kv cache-key :email])}]]
         [:> antd.Form.Item {:label "Groups"}
          [:> antd.Transfer {:titles         ["Available" "User's"]
-                            :dataSource     [{:key "admins" :title "Admins" :description "Desc of admins." :disabled false}
-                                             {:key "members" :title "Members" :description "Desc of members" :disabled false}]
+                            :dataSource     [{:key "admins" :title "Admins" :disabled false}
+                                             {:key "members" :title "Members" :disabled false}]
                             :render         #(aget % "key")
-                            :targetKeys     (->> :groups input (remove #(= :users %)))
+                            :targetKeys     (->> :groups input (remove #(= "users" %)))
                             :selectedKeys   (:groups-selected-keys input [])
                             :onChange       (fn [next-target-keys direction move-keys]
-                                              (let [groups (into #{:users} (map keyword next-target-keys))]
+                                              (let [groups (into ["users"] next-target-keys)]
                                                 (rf/dispatch [:set-input-kv cache-key :groups groups])))
                             :onSelectChange (fn [source-selected-keys target-selected-keys]
                                               (rf/dispatch [:set-input-kv cache-key :groups-selected-keys

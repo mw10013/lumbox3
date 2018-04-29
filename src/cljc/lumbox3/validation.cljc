@@ -4,9 +4,9 @@
 ;; Validators
 
 (def users-group
-  {:message "Must include users group."
+  {:message  "Must include users group."
    :optional true
-   :validate #(some #{:users} %)})
+   :validate #(some #{"users"} %)})
 
 ;; Rules
 
@@ -17,21 +17,22 @@
 (defn validate-register-user-input [m]
   (st/validate m
                {:email    email-rules
-                  :password [[st/required :message "Missing password."]
-                             [st/string :message "Must be a string."]
-                             [st/min-count 6 :message "Length must be at least 6."]
-                             [st/max-count 50 :message "Length must be 50 characters or less."]]}
+                :password [[st/required :message "Missing password."]
+                           [st/string :message "Must be a string."]
+                           [st/min-count 6 :message "Length must be at least 6."]
+                           [st/max-count 50 :message "Length must be 50 characters or less."]]}
                {:strip true}))
 
 (def validate-login-input validate-register-user-input)
 
 (defn validate-edit-user-input [m]
   (st/validate m
-               {:email  email-rules
-                  :groups [[st/every #{:admins :users :members} :message "Invalid group(s)."]
-                           users-group]
-                  :note   [[st/string :message "Must be a string."]
-                           [st/max-count 10000 :message "Length must be 10,0000 characters or less."]]}
+               {:id     [[st/required :message "Missing id."]]
+                :email  email-rules
+                :groups [[st/every #{"admins" "users" "members"} :message "Invalid group(s)."]
+                         users-group]
+                :note   [[st/string :message "Must be a string."]
+                         [st/max-count 10000 :message "Length must be 10,0000 characters or less."]]}
                {:strip true}))
 
 (comment
