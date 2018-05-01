@@ -1,3 +1,4 @@
+
 -- :name create-user! :? :1
 -- :doc Insert a new user record and add to users group.
 with new_user as(
