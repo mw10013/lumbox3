@@ -109,6 +109,7 @@
     (let [conn      (.getConnection stmt)
           meta      (.getParameterMetaData stmt)
           type-name (.getParameterTypeName meta idx)]
+      #_(println "ISQLParameter: type-name:" type-name)
       (if-let [elem-type (when (= (first type-name) \_) (apply str (rest type-name)))]
         (.setObject stmt idx (.createArrayOf conn elem-type (to-array v)))
         (.setObject stmt idx (to-pg-json v))))))
@@ -147,16 +148,6 @@
 (defmethod hugsql.core/hugsql-result-fn :default [sym]
   'lumbox3.db.core/result-many-snake->kebab)
 
-#_(defn create-user!
-  "Create user and add to users group.
-   Takes a map containing :user-email and :encrypted-password."
-  [m]
-  (conman/with-transaction [*db*]
-                           (let [user (first (insert-user! m))]
-                             (add-user-to-group! {:user-id (:user-id user)
-                                                 :group-id "users"})
-                             user)))
-
 (comment
   (users)
   (user-by-id {:user-id 1})
@@ -165,6 +156,11 @@
   (delete-user! {:user-id 3})
   (create-user! {:user-email "bar@bar.com" :encrypted-password "letmein"})
   (update-user! {:user-id 1 :email "foo@foo.com" :note "Some note."})
+
+  (conman/with-transaction [*db*]
+                           (jdbc/db-set-rollback-only! *db*)
+                           (update-groups! {:user-id 1 :groups ["users" "admins" "members"]})
+                           (update-groups! {:user-id 1 :groups ["users"]}))
 
   (hugsql.core/def-db-fns "sql/queries.sql")
   (hugsql.core/def-sqlvec-fns "sql/queries.sql")
