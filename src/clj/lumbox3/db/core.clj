@@ -84,6 +84,15 @@
 (alter-var-root #'lumbox3.db.core/user-by-email wrap-unmarshal-one-user)
 (alter-var-root #'lumbox3.db.core/user-by-id wrap-unmarshal-one-user)
 
+(defn update-user-and-groups!
+  "Update user and groups in :groups."
+  [m]
+  (conman/with-transaction
+    [*db*]
+    (update-user! m)
+    (update-groups! m)
+    (user-by-id m)))
+
 (extend-protocol jdbc/IResultSetReadColumn
   Array
   (result-set-read-column [v _ _] (vec (.getArray v)))
@@ -161,6 +170,11 @@
                            (jdbc/db-set-rollback-only! *db*)
                            (update-groups! {:user-id 1 :groups ["users" "admins" "members"]})
                            (update-groups! {:user-id 1 :groups ["users"]}))
+
+  (conman/with-transaction [*db*]
+                           (jdbc/db-set-rollback-only! *db*)
+                           (update-user-and-groups! {:user-id 1 :email "foo@foo.com" :note "Some comment."
+                                                     :groups ["users" "admins" "members"]}))
 
   (hugsql.core/def-db-fns "sql/queries.sql")
   (hugsql.core/def-sqlvec-fns "sql/queries.sql")
