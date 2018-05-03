@@ -6,7 +6,7 @@
 (def users-group
   {:message  "Must include users group."
    :optional true
-   :validate #(some #{"users"} %)})
+   :validate #(some #{:users} %)})
 
 ;; Rules
 
@@ -29,7 +29,7 @@
   (st/validate m
                {:id     [[st/required :message "Missing id."]]
                 :email  email-rules
-                :groups [[st/every #{"admins" "users" "members"} :message "Invalid group(s)."]
+                :groups [[st/every #{:admins :users :members} :message "Invalid group(s)."]
                          users-group]
                 :note   [[st/string :message "Must be a string."]
                          [st/max-count 10000 :message "Length must be 10,0000 characters or less."]]}

@@ -87,11 +87,12 @@
 (defn update-user-and-groups!
   "Update user and groups in :groups."
   [m]
-  (conman/with-transaction
-    [*db*]
-    (update-user! m)
-    (update-groups! m)
-    (user-by-id m)))
+  (let [m (update m :groups (comp vec (partial map name)))]
+    (conman/with-transaction
+      [*db*]
+      (update-user! m)
+      (update-groups! m)
+      (-> m user-by-id unmarshal-user))))
 
 (extend-protocol jdbc/IResultSetReadColumn
   Array

@@ -226,7 +226,7 @@
   (fn [{db :db} [e cache-key result]]
     (let [user (->> result :data :user unmarshal-user)]
       {:db (-> db
-               (update-in [:cache cache-key] assoc :user user :input (update user :groups #(map name %)))
+               (update-in [:cache cache-key] assoc :user user :input (update user :groups vec))
                (assoc :status e)
                (assoc :result result))})))
 

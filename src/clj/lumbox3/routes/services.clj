@@ -17,6 +17,7 @@
             [clj-time.coerce :as tc]))
 
 (def ^:private snake-case-keys (partial csk-extras/transform-keys csk/->snake_case))
+(def ^:private kebab-case-keys (partial csk-extras/transform-keys csk/->kebab-case))
 
 (defn ^:private marshal-user
   "Transform user map m for graphql."
@@ -25,6 +26,14 @@
       (assoc :id (str user-id))
       (dissoc :user-id)
       snake-case-keys))
+
+(defn ^:private unmarshal-user
+  "Transform user map m for db."
+  [{:keys [id] :as m}]
+  (-> m
+      (assoc :user-id (bigint id))
+      (dissoc :id)
+      kebab-case-keys))
 
 ;; TODO: services: users: check perms.
 (defn users
@@ -96,10 +105,7 @@
     (println "update-user: validated:" input)
     (if errors
       (resolve-as nil {:message "Invalid input." :anomaly {:category :incorrect} :input-errors errors})
-      (resolve-as nil {:message "Unimplemented." :anomaly {:category :incorrect} :input-errors errors})
-      #_(let [update-cnt (db/update-user! )]))
-    )
-  )
+      {:user (-> input unmarshal-user db/update-user-and-groups! marshal-user)})))
 
 ;; TODO: schema: error handling for scalar transformers
 (mount/defstate schema
