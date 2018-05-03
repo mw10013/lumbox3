@@ -227,8 +227,7 @@
     (let [user (->> result :data :user unmarshal-user)]
       {:db (-> db
                (update-in [:cache cache-key] assoc :user user :input (update user :groups vec))
-               (assoc :status e)
-               (assoc :result result))})))
+               (assoc :status e :result result))})))
 
 (rf/reg-event-fx
   :edit-user-save
@@ -237,15 +236,17 @@
     {:http-xhrio {:method :post
                   :uri             "/api"
                   :params          {:query     "mutation Update($update_input: UpdateUserInput!) {
-                  update_user(input: $update_input) { user { id email groups } } }"
+                  update_user(input: $update_input) { user { id email locked_at created_at groups note } } }"
                                     :variables {:update_input (csk-extras/transform-keys csk/->snake_case input)}}
                   :format          (ajax/transit-request-format)
                   :response-format (ajax/transit-response-format)
-                  :on-success      [:edit-user-succeeded cache-key]
+                  :on-success      [:edit-user-save-succeeded cache-key]
                   :on-failure      [:http-xhrio-graphql-failed cache-key]}}))
 
 (rf/reg-event-fx
   :edit-user-save-succeeded
   (fn [{db :db} [e cache-key result]]
-    {:db (-> db
-             (assoc :status e :result result))}))
+    (let [user (->> result :data :update_user :user unmarshal-user)]
+      {:db (-> db
+               (update-in [:cache cache-key] assoc :user user :input (update user :groups vec))
+               (assoc :status e :result result))})))

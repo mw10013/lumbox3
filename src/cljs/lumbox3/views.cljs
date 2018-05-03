@@ -168,7 +168,8 @@
     :render    #(r/as-element [:span (.toDateString %)])}
    {:title     "Groups"
     :dataIndex :groups
-    :key       :groups}
+    :key       :groups
+    :render #(r/as-element [:span (apply str (interpose " " %))])}
    {:title  "Actions"
     :key    :actions
     :render #(r/as-element [:a {:href (routes/href :admin-user {:id (aget % "id")})} "Edit"])}])
@@ -181,7 +182,7 @@
                    :dataSource @(rf/subscribe [:users])
                    :bordered   true :simple true
                    :rowKey     #(aget % "id")}]
-   (pr-str @(rf/subscribe [:users]))
+   #_(pr-str @(rf/subscribe [:users]))
    [debug-cache :admin]])
 
 (defn admin-user []
@@ -233,7 +234,7 @@
                                   :value     (:note input)
                                   :on-change (partial dispatch-sync-flush [:set-input-kv cache-key :note])}]]
         [:> antd.Button {:type :primary :htmlType :submit} "Submit"]])
-     (when input (pr-str input))
+     #_(when input (pr-str input))
      [:hr]
      (pr-str @re-frame.db/app-db)]))
 
