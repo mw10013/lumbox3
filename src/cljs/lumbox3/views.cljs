@@ -43,7 +43,7 @@
   (let [cache-key @(rf/subscribe [:route-name])
         input @(rf/subscribe [:input cache-key])
         input-errors @(rf/subscribe [:input-errors cache-key])
-        error-message @(rf/subscribe [:error-message cache-key])]
+        alert @(rf/subscribe [:alert cache-key])]
     [:> antd.Row {:type :flex :justify :center}
      [:> antd.Form {:style     {:max-width "300px"}
                     :on-submit (fn [e]
@@ -51,11 +51,10 @@
                                  (.stopPropagation e)
                                  (let [[input-errors input] (v/validate-register-user-input @(rf/subscribe [:input cache-key]))]
                                    (rf/dispatch [:set-input-errors cache-key input-errors])
-                                   (rf/dispatch [:set-error-message cache-key nil])
+                                   (rf/dispatch [:set-alert cache-key nil])
                                    (when-not input-errors
                                      (rf/dispatch [:register cache-key input]))))}
-      (when error-message
-        [:> antd.Alert {:type :error :message error-message}])
+      (when alert [:> antd.Alert alert])
       [:> antd.Form.Item (when-let [errors (:email input-errors)] {:validateStatus :error :hasFeedback true
                                                                    :help           errors})
        [:> antd.Input {:placeholder "E-mail address"
@@ -75,7 +74,7 @@
   (let [cache-key @(rf/subscribe [:route-name])
         input @(rf/subscribe [:input cache-key])
         input-errors @(rf/subscribe [:input-errors cache-key])
-        error-message @(rf/subscribe [:error-message cache-key])]
+        alert @(rf/subscribe [:alert cache-key])]
     [:> antd.Row {:type :flex :justify :center}
      [:> antd.Form {:style     {:max-width "300px"}
                     :on-submit (fn [e]
@@ -83,11 +82,10 @@
                                  (.stopPropagation e)
                                  (let [[input-errors input] (v/validate-login-input @(rf/subscribe [:input cache-key]))]
                                    (rf/dispatch [:set-input-errors cache-key input-errors])
-                                   (rf/dispatch [:set-error-message cache-key nil])
+                                   (rf/dispatch [:set-alert cache-key nil])
                                    (when-not input-errors
                                      (rf/dispatch [:login cache-key input]))))}
-      (when error-message
-        [:> antd.Alert {:type :error :message error-message}])
+      (when alert [:> antd.Alert alert])
       [:> antd.Form.Item (when-let [errors (:email input-errors)] {:validateStatus :error :hasFeedback true
                                                                    :help           errors})
        [:> antd.Input {:placeholder "E-mail address"
@@ -105,11 +103,10 @@
 
 (defn logout-view []
   (let [cache-key @(rf/subscribe [:route-name])
-        error-message @(rf/subscribe [:error-message cache-key])]
+        alert @(rf/subscribe [:alert cache-key])]
     [:div
      [:h3 "Logout"]
-     (when error-message [:div.alert.alert-danger error-message])
-     [debug-cache cache-key]]))
+     (when alert [:> antd.Alert alert])]))
 
 (defn home-view []
   [:div
@@ -189,11 +186,10 @@
   (let [cache-key @(rf/subscribe [:route-name])
         input @(rf/subscribe [:input cache-key])
         input-errors @(rf/subscribe [:input-errors cache-key])
-        error-message @(rf/subscribe [:error-message cache-key])]
+        alert @(rf/subscribe [:alert cache-key])]
     [:div
      [breadcrumbs]
-     (when error-message
-       [:> antd.Alert {:type :error :message error-message}])
+     (when alert [:> antd.Alert alert])
      (when input
        [:> antd.Form {:layout    :vertical
                       :on-submit (fn [e]
@@ -201,7 +197,7 @@
                                    (.stopPropagation e)
                                    (let [[input-errors input] (v/validate-edit-user-input @(rf/subscribe [:input cache-key]))]
                                      (rf/dispatch [:set-input-errors cache-key input-errors])
-                                     (rf/dispatch [:set-error-message cache-key nil])
+                                     (rf/dispatch [:set-alert cache-key nil])
                                      (when-not input-errors
                                        (console.log "submit:" input)
                                        (rf/dispatch [:edit-user-save cache-key input]))))}

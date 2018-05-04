@@ -38,10 +38,10 @@
   (fn [db [_ cache-key]] (get-in db [:cache cache-key])))
 
 #_(reg-sub-raw
-  :input
-  (fn [_ [_ cache-key]]
-    (reaction
-      (:input @(rf/subscribe [:cache cache-key])))))
+    :input
+    (fn [_ [_ cache-key]]
+      (reaction
+        (:input @(rf/subscribe [:cache cache-key])))))
 
 (rf/reg-sub
   :input
@@ -53,6 +53,7 @@
   (fn [[_ cache-key]] (rf/subscribe [:cache cache-key]))
   (fn [cache] (:input-errors cache)))
 
+;; TODO: Remove :error-message if it is no longer needed.
 (rf/reg-sub
   :error-message
   (fn [[_ cache-key]] (rf/subscribe [:cache cache-key]))
@@ -78,14 +79,27 @@
   (fn [db [_ cache-key error-message]]
     (assoc-in db [:cache cache-key :error-message] error-message)))
 
+(rf/reg-sub
+  :alert
+  (fn [[_ cache-key] _] (rf/subscribe [:cache cache-key]))
+  (fn [cache] (:alert cache)))
+
 (rf/reg-event-db
+  :set-alert
+  (fn [db [_ cache-key alert]]
+    (assoc-in db [:cache cache-key :alert] alert)))
+
+(rf/reg-event-fx
   :http-xhrio-graphql-failed
-  (fn [db [_ k result]]
+  (fn [{db :db} [_ cache-key result]]
     (let [error (some-> result (get-in [:response :errors]) first)]
-      (-> db
-          (assoc :status "http xhrio graphql failed")
-          (assoc :result result)
-          (update-in [:cache k] assoc :input-errors (:input-errors error) :error-message (:message error))))))
+      {:db (-> db
+               (assoc :status "http xhrio graphql failed")
+               (assoc :result result)
+               (update-in [:cache cache-key] assoc :input-errors (:input-errors error) :error-message (:message error)))
+       :dispatch-n [[:set-input-errors cache-key (:input-errors error)]
+                    [:set-error-message cache-key (:message error)]
+                    [:set-alert cache-key {:type :error #_:closable #_true :message (:message error)}]]})))
 
 (rf/reg-event-db
   :setup-register
@@ -108,10 +122,10 @@
 (rf/reg-event-fx
   :register-succeeded
   (fn [{db :db} [e cache-key result]]
-    {:db (-> db
-             (assoc :status e)
-             (assoc :result result)
-             (update :cache dissoc cache-key))
+    {:db       (-> db
+                   (assoc :status e)
+                   (assoc :result result)
+                   (update :cache dissoc cache-key))
      :navigate :login}))
 
 (defn unmarshal-user
@@ -150,17 +164,17 @@
 (rf/reg-event-fx
   :login-succeeded
   (fn [{db :db} [e cache-key result]]
-    {:db (-> db
-             (assoc :status e)
-             (assoc :result result)
-             (assoc :identity (->> result :data :login :user unmarshal-user))
-             (update :cache dissoc cache-key))
+    {:db       (-> db
+                   (assoc :status e)
+                   (assoc :result result)
+                   (assoc :identity (->> result :data :login :user unmarshal-user))
+                   (update :cache dissoc cache-key))
      :navigate :home}))
 
 (rf/reg-event-fx
   :logout
   (fn [{db :db} [_ cache-key input]]
-    {:db (dissoc db :identity)
+    {:db         (dissoc db :identity)
      :http-xhrio {:method          :post
                   :uri             "/api"
                   :params          {:query "mutation { logout { user { email } } }"}
@@ -182,9 +196,9 @@
   (fn [{db :db}]
     {:db         (-> db
                      (update :admin dissoc :users))
-     :http-xhrio {:method :post
-                  :uri    "/api"
-                  :params {:query "{ users { id email locked_at created_at groups } }"}
+     :http-xhrio {:method          :post
+                  :uri             "/api"
+                  :params          {:query "{ users { id email locked_at created_at groups } }"}
                   :format          (ajax/transit-request-format)
                   :response-format (ajax/transit-response-format)
                   :on-success      [:get-users-succeeded]
@@ -233,7 +247,7 @@
   :edit-user-save
   (fn [{db :db} [_ cache-key input]]
     (console.log "edit-user-save: input:" input)
-    {:http-xhrio {:method :post
+    {:http-xhrio {:method          :post
                   :uri             "/api"
                   :params          {:query     "mutation Update($update_input: UpdateUserInput!) {
                   update_user(input: $update_input) { user { id email locked_at created_at groups note } } }"
@@ -247,6 +261,9 @@
   :edit-user-save-succeeded
   (fn [{db :db} [e cache-key result]]
     (let [user (->> result :data :update_user :user unmarshal-user)]
-      {:db (-> db
-               (update-in [:cache cache-key] assoc :user user :input (update user :groups vec))
-               (assoc :status e :result result))})))
+      {:db       (-> db
+                     (update-in [:cache cache-key] assoc
+                                :user user
+                                :input (update user :groups vec))
+                     (assoc :status e :result result))
+       :dispatch [:set-alert cache-key {:type :success #_:closable #_true :message "User saved."}]})))
