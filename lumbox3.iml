@@ -40,10 +40,13 @@
     <orderEntry type="library" name="Leiningen: cljs-ajax:0.7.3" level="project" />
     <orderEntry type="library" name="Leiningen: cljsjs/antd:3.3.0-0" level="project" />
     <orderEntry type="library" name="Leiningen: cljsjs/create-react-class:15.5.3-0" level="project" />
+    <orderEntry type="library" name="Leiningen: cljsjs/highlight:9.6.0-0" level="project" />
     <orderEntry type="library" name="Leiningen: cljsjs/moment:2.17.1-1" level="project" />
+    <orderEntry type="library" name="Leiningen: cljsjs/prop-types:15.6.0-0" level="project" />
     <orderEntry type="library" name="Leiningen: cljsjs/react-dom-server:16.2.0-3" level="project" />
     <orderEntry type="library" name="Leiningen: cljsjs/react-dom:16.2.0-3" level="project" />
     <orderEntry type="library" name="Leiningen: cljsjs/react-flip-move:2.9.17-0" level="project" />
+    <orderEntry type="library" name="Leiningen: cljsjs/react-highlight:1.0.7-1" level="project" />
     <orderEntry type="library" name="Leiningen: cljsjs/react:16.2.0-3" level="project" />
     <orderEntry type="library" name="Leiningen: clojure-complete:0.2.4" level="project" />
     <orderEntry type="library" name="Leiningen: clojure-future-spec:1.9.0-alpha17" level="project" />
@@ -99,7 +102,7 @@
     <orderEntry type="library" name="Leiningen: crypto-equality:1.0.0" level="project" />
     <orderEntry type="library" name="Leiningen: crypto-random:1.2.0" level="project" />
     <orderEntry type="library" name="Leiningen: day8.re-frame/http-fx:0.1.4" level="project" />
-    <orderEntry type="library" name="Leiningen: day8.re-frame/re-frame-10x:0.2.0" level="project" />
+    <orderEntry type="library" name="Leiningen: day8.re-frame/re-frame-10x:0.3.3" level="project" />
     <orderEntry type="library" name="Leiningen: de.kotka/lazymap:3.1.0" level="project" />
     <orderEntry type="library" name="Leiningen: doo:0.1.8" level="project" />
     <orderEntry type="library" name="Leiningen: expiring-map:0.1.8" level="project" />
@@ -219,6 +222,8 @@
     <orderEntry type="library" name="Leiningen: re-frame:0.10.5" level="project" />
     <orderEntry type="library" name="Leiningen: reagent:0.7.0" level="project" />
     <orderEntry type="library" name="Leiningen: realize:1.1.0" level="project" />
+    <orderEntry type="library" name="Leiningen: rewrite-clj:0.6.0" level="project" />
+    <orderEntry type="library" name="Leiningen: rewrite-cljs:0.4.4" level="project" />
     <orderEntry type="library" name="Leiningen: riddley:0.1.12" level="project" />
     <orderEntry type="library" name="Leiningen: ring-cors:0.1.11" level="project" />
     <orderEntry type="library" name="Leiningen: ring-middleware-format:0.7.2" level="project" />
@@ -236,5 +241,6 @@
     <orderEntry type="library" name="Leiningen: strictly-specking-standalone:0.1.1" level="project" />
     <orderEntry type="library" name="Leiningen: suspendable:0.1.1" level="project" />
     <orderEntry type="library" name="Leiningen: tigris:0.1.1" level="project" />
+    <orderEntry type="library" name="Leiningen: zprint:0.4.7" level="project" />
   </component>
 </module>

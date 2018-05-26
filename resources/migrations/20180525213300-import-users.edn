@@ -1,0 +1,3 @@
+{:ns lumbox3.db.migrations.import-users
+ :up-fn migrate-up
+ :down-fn nil}

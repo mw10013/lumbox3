@@ -100,7 +100,7 @@
    :project/dev  {:jvm-opts ["-server" "-Dconf=dev-config.edn"]
                   :dependencies [[binaryage/devtools "0.9.9"]
                                  [com.cemerick/piggieback "0.2.2"]
-                                 [day8.re-frame/re-frame-10x "0.2.0"]
+                                 [day8.re-frame/re-frame-10x "0.3.3"]
                                  [doo "0.1.8"]
                                  [figwheel-sidecar "0.5.15"]
                                  [pjstadig/humane-test-output "0.8.3"]
