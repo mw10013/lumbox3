@@ -239,6 +239,10 @@
    [:h1 name]
    [breadcrumbs]])
 
+(defn restricted-view []
+  [:div
+   [:> antd.Alert {:type :error :message "Restricted." :show-icon true}]])
+
 (defn path-not-found-view []
   [:div
    [:> antd.Alert {:type :error :message "Page not found." :description "Invalid path." :show-icon true}]])
@@ -254,6 +258,7 @@
    :login           login-view
    :logout          logout-view
    :error           error-view
+   :restricted restricted-view
    :path-not-found  path-not-found-view})
 
 (defn main-view []

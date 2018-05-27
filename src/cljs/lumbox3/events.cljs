@@ -12,7 +12,12 @@
 
 (rf/reg-event-db :initialize-db (fn [_ _] db/default-db))
 
-(rf/reg-event-db :set-route (fn [db [_ route]] (assoc db :route route)))
+(defn identity-of-user [db] (:identity db))
+(rf/reg-sub :identity (fn [db _] (identity-of-user db)))
+(defn identity-groups [db] (:groups (identity-of-user db)))
+(rf/reg-sub :identity-groups (fn [db _] (identity-groups db)))
+
+#_(rf/reg-event-db :set-route (fn [db [_ route]] (assoc db :route route)))
 (rf/reg-sub :route (fn [db _] (:route db)))
 
 (rf/reg-sub
@@ -25,10 +30,19 @@
   :<- [:route]
   (fn [route query-v] (:path route)))
 
+(rf/reg-event-fx
+  :dispatch-route
+  (fn [{db :db} [_ route]]
+    (let [groups (get-in route [:data :groups])
+          start-event (get-in route [:data :start])
+          identity-groups (identity-groups db)]
+      (if (and (not-empty groups) (empty? (clojure.set/intersection groups identity-groups)))
+        {:dispatch [:set-route {:data {:name :restricted ::comment "Synthetic route"} :path (:path route)}]}
+        {:dispatch-n [[:set-route route]
+                      (when start-event (conj start-event route))]}))))
+
 (rf/reg-event-db :toggle-sider (fn [db] (update db :sider-collapsed not)))
 (rf/reg-sub :sider-collapsed (fn [db] (:sider-collapsed db)))
-
-(rf/reg-sub :identity (fn [db _] (:identity db)))
 
 (rf/reg-sub :status (fn [db _] (:status db)))
 (rf/reg-sub :result (fn [db _] (:result db)))

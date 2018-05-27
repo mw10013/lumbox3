@@ -14,7 +14,7 @@
     ["/"
      ["" {:name :home :breadcrumb-name "Home"}]
      ["about" :about]
-     ["admin"
+     ["admin" {:groups #{:admins}}
       ["" {:name :admin-dashboard :breadcrumb-name "Admin"}]
       ["/users"
        ["" {:name :admin-users :breadcrumb-name "Users" :start [:get-users]}]
@@ -69,10 +69,12 @@
     (console.log "dispatch-path:" path-with-query-string (.getPath uri) (.getQuery uri))
     (if-let [match (r/match-by-path router (.getPath uri))]
       (let [match (assoc match :parameters (coercion/coerce! match))]
-        (rf/dispatch [:set-route match])
-        (when-let [event (get-in match [:data :start])]
-          (rf/dispatch (conj event match))))
-      (rf/dispatch [:set-route {:data {:name :path-not-found ::comment "Synthetic route"} :path (.getPath uri)}]))))
+        #_(rf/dispatch [:set-route match])
+        #_(when-let [event (get-in match [:data :start])]
+          (rf/dispatch (conj event match)))
+        (rf/dispatch [:dispatch-route match]))
+      #_(rf/dispatch [:set-route {:data {:name :path-not-found ::comment "Synthetic route"} :path (.getPath uri)}])
+      (rf/dispatch [:dispatch-route {:data {:name :path-not-found ::comment "Synthetic route"} :path (.getPath uri)}]))))
 
 ;; https://lispcast.com/mastering-client-side-routing-with-secretary-and-goog-history/
 (defn history-did-navigate [e]

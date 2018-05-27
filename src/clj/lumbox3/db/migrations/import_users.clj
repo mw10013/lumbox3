@@ -8,6 +8,10 @@
 (def users (for [domain ["aaa" "bbb" "ccc" "ddd" "eee"]
                  n (range 1 6)]
              {:email (str "user" n "@" domain ".com") :password password}))
+(def users (for [n (range 1 3)
+                 offset (range 26)]
+             {:email (str "user@" (->> \a int (+ offset) char (repeat n) (apply str)) ".com")
+              :password password}))
 
 (defn migrate-up [config]
   (mount/start #'db/*db*)
