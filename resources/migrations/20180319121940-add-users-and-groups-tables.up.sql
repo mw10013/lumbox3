@@ -27,7 +27,7 @@ insert into groups(group_id)
 values('users'), ('members'), ('customers'), ('biz'), ('support'), ('devops'), ('admins');
 
 create table user_groups(
-  user_id integer references users(user_id),
+  user_id integer references users(user_id) on delete cascade,
   group_id varchar(50) references groups(group_id),
   primary key(user_id, group_id)
 );

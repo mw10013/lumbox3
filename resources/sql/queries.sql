@@ -25,6 +25,11 @@ returning *;
 delete from users
 where user_id = :user_id;
 
+-- :name delete-user-by-email! :! :n
+-- :doc Delete a user by email.
+delete from users
+where email = :email;
+
 -- :name update-user! :! :n
 -- :doc Updates an existing user record.
 update users
