@@ -3,19 +3,25 @@
             [lumbox3.routes.services :as services]
             [mount.core :as mount]))
 
+(def admin-email "admin@admin.com")
+(def password "letmein")
 (def users (for [domain ["aaa" "bbb" "ccc" "ddd" "eee"]
                  n (range 1 6)]
-             {:email (str "user" n "@" domain ".com") :password "letmein"}))
+             {:email (str "user" n "@" domain ".com") :password password}))
 
 (defn migrate-up [config]
   (mount/start #'db/*db*)
   (doseq [user users]
-    (services/register-user nil {:input user} nil)))
+    (services/register-user nil {:input user} nil))
+  (let [payload (services/register-user nil {:input {:email admin-email :password password}} nil)
+        user-id (some-> payload :user :id bigint)]
+    (db/add-user-to-group! {:user-id user-id :group-id "admins"})))
 
 (defn migrate-down [config]
   (mount/start #'db/*db*)
   (doseq [user users]
-    (db/delete-user-by-email! user)))
+    (db/delete-user-by-email! user))
+  (db/delete-user-by-email! {:email admin-email}))
 
 (comment
   (mount.core/start #'lumbox3.routes.services/schema)
